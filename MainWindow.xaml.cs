@@ -29,6 +29,9 @@ public partial class MainWindow : Window
     /// <summary>Conectar con el primer movil listo en cuanto aparezca (opcion --connect).</summary>
     public bool AutoConnect { get; init; }
 
+    /// <summary>Numero de serie del movil que se quiere (opcion --serial); sin el, el primero listo.</summary>
+    public string? PreferredSerial { get; init; }
+
     private bool _autoConnected;
 
     public MainWindow()
@@ -144,7 +147,7 @@ public partial class MainWindow : Window
             if (!current.SequenceEqual(devices))
             {
                 DeviceBox.ItemsSource = devices;
-                DeviceBox.SelectedItem = devices.FirstOrDefault(d => d.Serial == selected)
+                DeviceBox.SelectedItem = devices.FirstOrDefault(d => d.Serial == (selected ?? PreferredSerial))
                     ?? devices.FirstOrDefault(d => d.IsReady)
                     ?? devices.FirstOrDefault();
             }

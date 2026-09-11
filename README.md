@@ -27,6 +27,9 @@ Hace falta:
 - `Assets\scrcpy-server` (va en el repositorio; `tools\get-scrcpy-server.ps1` lo vuelve a bajar y
   comprueba el SHA-256).
 
+Opciones: `--connect` conecta solo con el primer móvil listo; `--serial <serie>` conecta con ese
+móvil (una ventana por móvil: se puede abrir una para el teléfono y otra para la tablet).
+
 ## Manejo
 
 | Gesto | Qué hace |
