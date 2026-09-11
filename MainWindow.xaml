@@ -1,0 +1,97 @@
+<Window x:Class="PhoneMirror.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="clr-namespace:PhoneMirror.Localization"
+        Title="{loc:T AppTitle}"
+        Width="520" Height="860" MinWidth="420" MinHeight="520"
+        Background="{DynamicResource PageBackground}"
+        AllowDrop="True"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============================ Barra ============================ -->
+        <!-- Solo iconos (constitucion 6); el nombre de cada uno va en el tooltip. -->
+        <Border Grid.Row="0" Background="{DynamicResource CardBackground}" Padding="8,6">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <ComboBox x:Name="DeviceBox" Style="{StaticResource DeviceCombo}" Margin="0,0,6,0"
+                          DisplayMemberPath="Caption" SelectionChanged="OnDeviceSelected" />
+                <Button x:Name="RefreshButton" Style="{StaticResource GhostIconButton}" Content="&#xE72C;"
+                        ToolTip="{loc:T RefreshTooltip}" Click="OnRefreshClick" />
+                <Button x:Name="ConnectButton" Style="{StaticResource IconButton}" Content="&#xE768;"
+                        ToolTip="{loc:T ConnectTooltip}" Click="OnConnectClick" />
+                <Button x:Name="DisconnectButton" Style="{StaticResource DangerIconButton}" Content="&#xE71A;"
+                        ToolTip="{loc:T DisconnectTooltip}" Click="OnDisconnectClick" Visibility="Collapsed" />
+
+                <Rectangle Width="1" Height="24" Fill="{DynamicResource Separator}" Margin="8,0" />
+
+                <Button x:Name="BackButton" Style="{StaticResource GhostIconButton}" Content="&#xE72B;"
+                        ToolTip="{loc:T BackTooltip}" Click="OnBackClick" />
+                <Button x:Name="HomeButton" Style="{StaticResource GhostIconButton}" Content="&#xE80F;"
+                        ToolTip="{loc:T HomeTooltip}" Click="OnHomeClick" />
+                <Button x:Name="RecentsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7C4;"
+                        ToolTip="{loc:T RecentsTooltip}" Click="OnRecentsClick" />
+                <Button x:Name="NotificationsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E7;"
+                        ToolTip="{loc:T NotificationsTooltip}" Click="OnNotificationsClick" />
+                <Button x:Name="PowerButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E8;"
+                        ToolTip="{loc:T PowerTooltip}" Click="OnPowerClick" />
+                <Button x:Name="RotateButton" Style="{StaticResource GhostIconButton}" Content="&#xE7AD;"
+                        ToolTip="{loc:T RotateTooltip}" Click="OnRotateClick" />
+                <Button x:Name="VolumeDownButton" Style="{StaticResource GhostIconButton}" Content="&#xE993;"
+                        ToolTip="{loc:T VolumeDownTooltip}" Click="OnVolumeDownClick" />
+                <Button x:Name="VolumeUpButton" Style="{StaticResource GhostIconButton}" Content="&#xE995;"
+                        ToolTip="{loc:T VolumeUpTooltip}" Click="OnVolumeUpClick" />
+
+                <Rectangle Width="1" Height="24" Fill="{DynamicResource Separator}" Margin="8,0" />
+
+                <Button x:Name="ScreenshotButton" Style="{StaticResource GhostIconButton}" Content="&#xE722;"
+                        ToolTip="{loc:T ScreenshotTooltip}" Click="OnScreenshotClick" />
+                <Button x:Name="CopyButton" Style="{StaticResource GhostIconButton}" Content="&#xE8C8;"
+                        ToolTip="{loc:T CopyTooltip}" Click="OnCopyClick" />
+                <Button x:Name="PasteButton" Style="{StaticResource GhostIconButton}" Content="&#xE77F;"
+                        ToolTip="{loc:T PasteTooltip}" Click="OnPasteClick" />
+                <ToggleButton x:Name="TopmostButton" Style="{StaticResource ToggleIconButton}" Content="&#xE840;"
+                              ToolTip="{loc:T AlwaysOnTopTooltip}" Checked="OnTopmostChanged" Unchecked="OnTopmostChanged" />
+                <Button x:Name="LanguageButton" Style="{StaticResource GhostIconButton}" Content="&#xE8C1;"
+                        ToolTip="{loc:T LanguageTooltip}" Click="OnLanguageClick" />
+            </WrapPanel>
+        </Border>
+
+        <!-- ============================ Espejo ============================ -->
+        <Grid x:Name="MirrorArea" Grid.Row="1" Background="{DynamicResource MirrorBackground}"
+              Focusable="True" ClipToBounds="True"
+              MouseDown="OnMirrorMouseDown" MouseMove="OnMirrorMouseMove" MouseUp="OnMirrorMouseUp"
+              MouseWheel="OnMirrorMouseWheel" MouseLeave="OnMirrorMouseLeave">
+            <Image x:Name="Mirror" Stretch="Uniform" RenderOptions.BitmapScalingMode="Linear"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+            <!-- Mensaje mientras no hay imagen: sin adb, sin movil, conectando… -->
+            <Border x:Name="Placeholder" Style="{StaticResource Card}" MaxWidth="360" Padding="24"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="48" Text="&#xE8EA;"
+                               Foreground="{DynamicResource Primary}" HorizontalAlignment="Center" Margin="0,0,0,12" />
+                    <TextBlock x:Name="PlaceholderText" Style="{StaticResource BodyText}" TextAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============================ Estado ============================ -->
+        <Border Grid.Row="2" Background="{DynamicResource CardBackground}" Padding="10,4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" x:Name="StatusText" Style="{StaticResource HintText}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" x:Name="FpsText" Style="{StaticResource HintText}" VerticalAlignment="Center" Margin="12,0,0,0" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

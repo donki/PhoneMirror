@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>PhoneMirror</RootNamespace>
+    <AssemblyName>PhoneMirror</AssemblyName>
+    <ApplicationTitle>Phone Mirror</ApplicationTitle>
+    <Version>2026.9.11.1</Version>
+    <AssemblyVersion>2026.9.11.1</AssemblyVersion>
+    <FileVersion>2026.9.11.1</FileVersion>
+    <Product>Phone Mirror</Product>
+    <Company>Socratic</Company>
+    <Copyright>Copyright © 2026 Socratic</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <ApplicationIcon>appicon.ico</ApplicationIcon>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      El servidor de scrcpy (Apache 2.0) va tal cual al lado del ejecutable: se empuja al movil por
+      adb en cada arranque. La version tiene que coincidir con ScrcpyProtocol.ServerVersion, porque
+      el servidor la comprueba y el formato de los mensajes va ligado a ella.
+    -->
+    <None Include="Assets\scrcpy-server">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
