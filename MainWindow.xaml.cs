@@ -194,7 +194,11 @@ public partial class MainWindow : Window
 
         var session = new ScrcpySession(_adb, device.Serial);
         session.FrameReady += OnFrameReady;
-        session.VideoSizeChanged += (w, h) => Dispatcher.BeginInvoke(() => SetStatus(Loc.Format("Connected", session.DeviceName, w, h)));
+        session.VideoSizeChanged += (w, h) => Dispatcher.BeginInvoke(() =>
+        {
+            SetStatus(Loc.Format("Connected", session.DeviceName, w, h));
+            FitWindowToVideo(w, h);
+        });
         session.Ended += reason => Dispatcher.BeginInvoke(async () =>
         {
             if (!ReferenceEquals(_session, session))
@@ -260,6 +264,43 @@ public partial class MainWindow : Window
     // =====================================================================
     //  Video
     // =====================================================================
+
+    /// <summary>
+    /// Adapta la ventana al formato del video: al girar el movil (un juego apaisado, por ejemplo)
+    /// la ventana pasa a apaisada, y al volver, a vertical. Se conserva mas o menos el area del
+    /// espejo, sin salirse de la pantalla y sin tocar una ventana maximizada.
+    /// </summary>
+    private void FitWindowToVideo(int videoWidth, int videoHeight)
+    {
+        if (videoWidth <= 0 || videoHeight <= 0 || WindowState != WindowState.Normal)
+            return;
+
+        var chromeWidth = Math.Max(0, ActualWidth - MirrorArea.ActualWidth);
+        var chromeHeight = Math.Max(0, ActualHeight - MirrorArea.ActualHeight);
+
+        var work = SystemParameters.WorkArea;
+        var maxMirrorWidth = work.Width - chromeWidth - 24;
+        var maxMirrorHeight = work.Height - chromeHeight - 24;
+
+        // Misma superficie que ahora (o un tamaño razonable la primera vez), con el formato nuevo.
+        var area = Math.Max(MirrorArea.ActualWidth * MirrorArea.ActualHeight, 480.0 * 800.0);
+        var ratio = (double)videoWidth / videoHeight;
+        var mirrorWidth = Math.Sqrt(area * ratio);
+        var mirrorHeight = mirrorWidth / ratio;
+
+        var scale = Math.Min(1.0, Math.Min(maxMirrorWidth / mirrorWidth, maxMirrorHeight / mirrorHeight));
+        mirrorWidth *= scale;
+        mirrorHeight *= scale;
+
+        var newWidth = Math.Max(MinWidth, mirrorWidth + chromeWidth);
+        var newHeight = Math.Max(MinHeight, mirrorHeight + chromeHeight);
+
+        // Que no se salga por la derecha o por abajo al crecer.
+        Left = Math.Max(work.Left, Math.Min(Left, work.Right - newWidth));
+        Top = Math.Max(work.Top, Math.Min(Top, work.Bottom - newHeight));
+        Width = newWidth;
+        Height = newHeight;
+    }
 
     /// <summary>
     /// Llega desde el hilo de video. Se copia al mapa de bits de forma sincrona: el bufer que

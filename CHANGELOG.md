@@ -13,6 +13,10 @@
 - Barra de botones: atrás, inicio, recientes, notificaciones, apagar/encender pantalla, girar,
   volumen, captura (a `Imágenes\Phone Mirror`), copiar/pegar portapapeles, siempre encima, idioma.
 - Arrastrar un APK lo instala; cualquier otro fichero se copia a `Download` del móvil.
+- La ventana se adapta al formato del móvil: al girar (un juego apaisado) pasa a apaisada y al
+  volver, a vertical, conservando el tamaño y sin salirse de la pantalla.
+- «Acerca de» con la estructura canónica del catálogo (contacto, idioma, privacidad, licencia,
+  aviso legal).
 - `--connect` y `--serial <serie>` para arrancar ya conectado; una ventana por móvil.
 - Detecta los móviles cada tres segundos hasta que hay sesión; español e inglés; tema claro y
   oscuro siguiendo a Windows.

@@ -18,7 +18,7 @@ public partial class AboutWindow : Window
 
         SourceInitialized += (_, _) => ThemeManager.ApplyToWindow(this);
 
-        LogoImage.Source = new BitmapImage(new Uri("pack://application:,,,/appicon.ico"));
+        LogoImage.Source = new BitmapImage(new Uri("pack://application:,,,/Assets/logo.png"));
         VersionLabel.Text = $"v{Version()}";
         PaintLanguageButtons();
     }

@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <!-- El icono tambien como recurso, para el logo de «Acerca de». -->
-    <Resource Include="appicon.ico" />
+    <Resource Include="Assets\logo.png" />
   </ItemGroup>
 
   <ItemGroup>
