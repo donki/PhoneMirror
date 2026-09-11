@@ -60,6 +60,8 @@
                               ToolTip="{loc:T AlwaysOnTopTooltip}" Checked="OnTopmostChanged" Unchecked="OnTopmostChanged" />
                 <Button x:Name="LanguageButton" Style="{StaticResource GhostIconButton}" Content="&#xE8C1;"
                         ToolTip="{loc:T LanguageTooltip}" Click="OnLanguageClick" />
+                <Button x:Name="AboutButton" Style="{StaticResource GhostIconButton}" Content="&#xE946;"
+                        ToolTip="{loc:T AboutTooltip}" Click="OnAboutClick" />
             </WrapPanel>
         </Border>
 

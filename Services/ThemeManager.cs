@@ -29,6 +29,7 @@ public static class ThemeManager
             Set(resources, "TextPrimary", "#E6E1E9");
             Set(resources, "TextSecondary", "#C7C4D8");
             Set(resources, "MirrorBackground", "#000000");
+            Set(resources, "WarningSurface", "#33291A");
         }
         else
         {
@@ -38,6 +39,7 @@ public static class ThemeManager
             Set(resources, "TextPrimary", "#191C1D");
             Set(resources, "TextSecondary", "#464555");
             Set(resources, "MirrorBackground", "#1B1B22");
+            Set(resources, "WarningSurface", "#FFF4E5");
         }
     }
 

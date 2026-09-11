@@ -1,4 +1,4 @@
-# Avisos de terceros — Phone Mirror
+# Avisos de terceros — sOC Phone Mirror
 
 | Componente | Uso | Licencia | Titular |
 |---|---|---|---|

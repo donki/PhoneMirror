@@ -24,12 +24,19 @@
             <SolidColorBrush x:Key="Success" Color="#27AE60" />
             <SolidColorBrush x:Key="Danger" Color="#BA1A1A" />
             <SolidColorBrush x:Key="MirrorBackground" Color="#1B1B22" />
+            <SolidColorBrush x:Key="WarningSurface" Color="#FFF4E5" />
 
             <!-- ============================ Texto ============================ -->
             <Style x:Key="BodyText" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
                 <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <Style x:Key="CardTitle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="17" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{DynamicResource Primary}" />
             </Style>
 
             <Style x:Key="HintText" TargetType="TextBlock">
@@ -85,6 +92,33 @@
 
             <Style x:Key="DangerIconButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
                 <Setter Property="Background" Value="{DynamicResource Danger}" />
+            </Style>
+
+            <!-- Boton con texto y borde, para los idiomas y el contacto de «Acerca de». -->
+            <Style x:Key="OutlineButton" TargetType="Button">
+                <Setter Property="FontFamily" Value="Segoe UI" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Height" Value="36" />
+                <Setter Property="Padding" Value="16,0" />
+                <Setter Property="Foreground" Value="{DynamicResource Primary}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                    BorderBrush="{DynamicResource Primary}" BorderThickness="1" CornerRadius="10">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Opacity" Value="0.85" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <!-- Boton con estado (siempre encima): relleno de marca cuando esta activo. -->

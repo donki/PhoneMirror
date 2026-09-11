@@ -85,6 +85,7 @@ public partial class MainWindow : Window
         PasteButton.ToolTip = Loc.Get("PasteTooltip");
         TopmostButton.ToolTip = Loc.Get("AlwaysOnTopTooltip");
         LanguageButton.ToolTip = Loc.Get("LanguageTooltip");
+        AboutButton.ToolTip = Loc.Get("AboutTooltip");
         UpdatePlaceholder();
     }
 
@@ -580,6 +581,8 @@ public partial class MainWindow : Window
     private void OnTopmostChanged(object sender, RoutedEventArgs e) => Topmost = TopmostButton.IsChecked == true;
 
     private void OnLanguageClick(object sender, RoutedEventArgs e) => Loc.Toggle();
+
+    private void OnAboutClick(object sender, RoutedEventArgs e) => new AboutWindow { Owner = this }.ShowDialog();
 
     // =====================================================================
     //  Arrastrar ficheros: APK se instala, lo demas va a Download

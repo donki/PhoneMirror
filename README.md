@@ -1,4 +1,4 @@
-# Phone Mirror
+# sOC Phone Mirror
 
 Ver y manejar el móvil Android conectado por cable desde una ventana de Windows.
 

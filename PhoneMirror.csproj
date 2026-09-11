@@ -8,12 +8,12 @@
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>PhoneMirror</RootNamespace>
-    <AssemblyName>PhoneMirror</AssemblyName>
-    <ApplicationTitle>Phone Mirror</ApplicationTitle>
+    <AssemblyName>sOCPhoneMirror</AssemblyName>
+    <ApplicationTitle>sOC Phone Mirror</ApplicationTitle>
     <Version>2026.9.11.1</Version>
     <AssemblyVersion>2026.9.11.1</AssemblyVersion>
     <FileVersion>2026.9.11.1</FileVersion>
-    <Product>Phone Mirror</Product>
+    <Product>sOC Phone Mirror</Product>
     <Company>Socratic</Company>
     <Copyright>Copyright © 2026 Socratic</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -21,6 +21,11 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- El icono tambien como recurso, para el logo de «Acerca de». -->
+    <Resource Include="appicon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <!--

@@ -1,4 +1,4 @@
-# Changelog — Phone Mirror
+# Changelog — sOC Phone Mirror
 
 ## 2026.9.11.1 — Primera versión
 
