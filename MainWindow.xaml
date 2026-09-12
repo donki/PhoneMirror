@@ -17,14 +17,9 @@
         </Grid.RowDefinitions>
 
         <!-- ============================ Barra ============================ -->
-        <!--
-            Solo iconos (constitucion 6); el nombre de cada uno va en el tooltip. Dos bloques con
-            una linea entre medias: arriba lo del PC y la sesion (movil elegido, conectar, captura,
-            portapapeles, siempre encima, idioma, acerca de); abajo, separados, los botones que
-            son los del movil (atras, inicio, recientes, notificaciones, pantalla, giro, volumen).
-        -->
-        <StackPanel Grid.Row="0" Background="{DynamicResource CardBackground}">
-            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,6,8,6">
+        <!-- Solo iconos (constitucion 6); el nombre de cada uno va en el tooltip. -->
+        <Border Grid.Row="0" Background="{DynamicResource CardBackground}" Padding="8,6">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <ComboBox x:Name="DeviceBox" Style="{StaticResource DeviceCombo}" Margin="0,0,6,0"
                           SelectionChanged="OnDeviceSelected">
                     <ComboBox.ItemTemplate>
@@ -42,6 +37,25 @@
 
                 <Rectangle Width="1" Height="24" Fill="{DynamicResource Separator}" Margin="8,0" />
 
+                <Button x:Name="BackButton" Style="{StaticResource GhostIconButton}" Content="&#xE72B;"
+                        ToolTip="{loc:T BackTooltip}" Click="OnBackClick" />
+                <Button x:Name="HomeButton" Style="{StaticResource GhostIconButton}" Content="&#xE80F;"
+                        ToolTip="{loc:T HomeTooltip}" Click="OnHomeClick" />
+                <Button x:Name="RecentsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7C4;"
+                        ToolTip="{loc:T RecentsTooltip}" Click="OnRecentsClick" />
+                <Button x:Name="NotificationsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E7;"
+                        ToolTip="{loc:T NotificationsTooltip}" Click="OnNotificationsClick" />
+                <Button x:Name="PowerButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E8;"
+                        ToolTip="{loc:T PowerTooltip}" Click="OnPowerClick" />
+                <Button x:Name="RotateButton" Style="{StaticResource GhostIconButton}" Content="&#xE7AD;"
+                        ToolTip="{loc:T RotateTooltip}" Click="OnRotateClick" />
+                <Button x:Name="VolumeDownButton" Style="{StaticResource GhostIconButton}" Content="&#xE993;"
+                        ToolTip="{loc:T VolumeDownTooltip}" Click="OnVolumeDownClick" />
+                <Button x:Name="VolumeUpButton" Style="{StaticResource GhostIconButton}" Content="&#xE995;"
+                        ToolTip="{loc:T VolumeUpTooltip}" Click="OnVolumeUpClick" />
+
+                <Rectangle Width="1" Height="24" Fill="{DynamicResource Separator}" Margin="8,0" />
+
                 <Button x:Name="ScreenshotButton" Style="{StaticResource GhostIconButton}" Content="&#xE722;"
                         ToolTip="{loc:T ScreenshotTooltip}" Click="OnScreenshotClick" />
                 <Button x:Name="CopyButton" Style="{StaticResource GhostIconButton}" Content="&#xE8C8;"
@@ -55,29 +69,7 @@
                 <Button x:Name="AboutButton" Style="{StaticResource GhostIconButton}" Content="&#xE946;"
                         ToolTip="{loc:T AboutTooltip}" Click="OnAboutClick" />
             </WrapPanel>
-
-            <!-- Los botones del movil, en su bloque, con la linea que los separa de lo del PC. -->
-            <Border BorderBrush="{DynamicResource Separator}" BorderThickness="0,1,0,0" Padding="8,6">
-                <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="BackButton" Style="{StaticResource GhostIconButton}" Content="&#xE72B;"
-                            ToolTip="{loc:T BackTooltip}" Click="OnBackClick" />
-                    <Button x:Name="HomeButton" Style="{StaticResource GhostIconButton}" Content="&#xE80F;"
-                            ToolTip="{loc:T HomeTooltip}" Click="OnHomeClick" />
-                    <Button x:Name="RecentsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7C4;"
-                            ToolTip="{loc:T RecentsTooltip}" Click="OnRecentsClick" />
-                    <Button x:Name="NotificationsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E7;"
-                            ToolTip="{loc:T NotificationsTooltip}" Click="OnNotificationsClick" />
-                    <Button x:Name="PowerButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E8;"
-                            ToolTip="{loc:T PowerTooltip}" Click="OnPowerClick" />
-                    <Button x:Name="RotateButton" Style="{StaticResource GhostIconButton}" Content="&#xE7AD;"
-                            ToolTip="{loc:T RotateTooltip}" Click="OnRotateClick" />
-                    <Button x:Name="VolumeDownButton" Style="{StaticResource GhostIconButton}" Content="&#xE993;"
-                            ToolTip="{loc:T VolumeDownTooltip}" Click="OnVolumeDownClick" />
-                    <Button x:Name="VolumeUpButton" Style="{StaticResource GhostIconButton}" Content="&#xE995;"
-                            ToolTip="{loc:T VolumeUpTooltip}" Click="OnVolumeUpClick" />
-                </WrapPanel>
-            </Border>
-        </StackPanel>
+        </Border>
 
         <!-- ============================ Espejo ============================ -->
         <Grid x:Name="MirrorArea" Grid.Row="1" Background="{DynamicResource MirrorBackground}"
