@@ -43,6 +43,10 @@
                         ToolTip="{loc:T HomeTooltip}" Click="OnHomeClick" />
                 <Button x:Name="RecentsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7C4;"
                         ToolTip="{loc:T RecentsTooltip}" Click="OnRecentsClick" />
+
+                <!-- Los tres de navegacion de Android (atras, inicio, recientes) van juntos;
+                     lo demas del movil, despues de la linea. -->
+                <Rectangle Width="1" Height="24" Fill="{DynamicResource Separator}" Margin="8,0" />
                 <Button x:Name="NotificationsButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E7;"
                         ToolTip="{loc:T NotificationsTooltip}" Click="OnNotificationsClick" />
                 <Button x:Name="PowerButton" Style="{StaticResource GhostIconButton}" Content="&#xE7E8;"
