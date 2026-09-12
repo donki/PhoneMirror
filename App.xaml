@@ -216,14 +216,17 @@
                                         </Style>
                                     </ContentPresenter.Resources>
                                 </ContentPresenter>
+                                <!-- Sin StaysOpen="False": el ComboBox captura el raton al abrir y cierra el
+                                     desplegable el mismo; con StaysOpen en falso los dos se pelean por la
+                                     captura y el desplegable se cerraba en el mismo clic que lo abria. -->
                                 <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
-                                       AllowsTransparency="True" PopupAnimation="Fade" StaysOpen="False">
+                                       AllowsTransparency="True" PopupAnimation="Fade" Focusable="False">
                                     <Border Background="{DynamicResource CardBackground}"
                                             BorderBrush="{DynamicResource Separator}" BorderThickness="1"
                                             CornerRadius="10" Padding="4" Margin="0,4,0,0"
                                             MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                            <ItemsPresenter />
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" SnapsToDevicePixels="True">
+                                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
                                         </ScrollViewer>
                                     </Border>
                                 </Popup>

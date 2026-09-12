@@ -114,7 +114,7 @@ public partial class MainWindow : Window
     {
         ConnectButton.Visibility = connected ? Visibility.Collapsed : Visibility.Visible;
         DisconnectButton.Visibility = connected ? Visibility.Visible : Visibility.Collapsed;
-        DeviceBox.IsEnabled = !connected;
+        // El desplegable sigue activo con sesion: elegir otro movil cambia de sesion.
         RefreshButton.IsEnabled = !connected;
 
         foreach (var button in new[] { BackButton, HomeButton, RecentsButton, NotificationsButton, PowerButton,
@@ -168,10 +168,20 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnDeviceSelected(object sender, RoutedEventArgs e)
+    private string? _connectedSerial;
+
+    private async void OnDeviceSelected(object sender, RoutedEventArgs e)
     {
         ConnectButton.IsEnabled = DeviceBox.SelectedItem is AdbDevice { IsReady: true };
         UpdatePlaceholder();
+
+        // Con una sesion en marcha, elegir otro movil es querer ver ese: se cambia.
+        if (_session is not null && DeviceBox.SelectedItem is AdbDevice { IsReady: true } device
+            && device.Serial != _connectedSerial)
+        {
+            await DisconnectAsync();
+            await ConnectAsync();
+        }
     }
 
     private async void OnRefreshClick(object sender, RoutedEventArgs e) => await RefreshDevicesAsync();
@@ -222,6 +232,7 @@ public partial class MainWindow : Window
         }
 
         _session = session;
+        _connectedSerial = device.Serial;
         session.Control!.ClipboardReceived += text => Dispatcher.BeginInvoke(() =>
         {
             try
@@ -252,6 +263,7 @@ public partial class MainWindow : Window
             await session.DisposeAsync();
         }
 
+        _connectedSerial = null;
         Mirror.Source = null;
         _bitmap = null;
         FpsText.Text = string.Empty;
