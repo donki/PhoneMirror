@@ -10,9 +10,9 @@
     <RootNamespace>PhoneMirror</RootNamespace>
     <AssemblyName>sOCPhoneMirror</AssemblyName>
     <ApplicationTitle>sOC Phone Mirror</ApplicationTitle>
-    <Version>2026.9.13.1</Version>
-    <AssemblyVersion>2026.9.13.1</AssemblyVersion>
-    <FileVersion>2026.9.13.1</FileVersion>
+    <Version>2026.9.13.2</Version>
+    <AssemblyVersion>2026.9.13.2</AssemblyVersion>
+    <FileVersion>2026.9.13.2</FileVersion>
     <Product>sOC Phone Mirror</Product>
     <Company>Socratic</Company>
     <Copyright>Copyright © 2026 Socratic</Copyright>

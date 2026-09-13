@@ -30,6 +30,9 @@
                 </ComboBox>
                 <Button x:Name="RefreshButton" Style="{StaticResource GhostIconButton}" Content="&#xE72C;"
                         ToolTip="{loc:T RefreshTooltip}" Click="OnRefreshClick" />
+                <!-- Por Wi-Fi: adb connect / adb pair desde una ventana, sin consola. -->
+                <Button x:Name="WifiButton" Style="{StaticResource GhostIconButton}" Content="&#xE701;"
+                        ToolTip="{loc:T WifiTooltip}" Click="OnWifiClick" />
                 <Button x:Name="ConnectButton" Style="{StaticResource IconButton}" Content="&#xE768;"
                         ToolTip="{loc:T ConnectTooltip}" Click="OnConnectClick" />
                 <Button x:Name="DisconnectButton" Style="{StaticResource DangerIconButton}" Content="&#xE71A;"

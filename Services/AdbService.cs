@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 
 namespace PhoneMirror.Services;
@@ -107,6 +107,59 @@ public sealed class AdbService
 
     public Task InstallAsync(string serial, string apkPath, CancellationToken cancellationToken = default) =>
         RunAsync(["-s", serial, "install", "-r", apkPath], cancellationToken);
+
+    // -----------------------------------------------------------------------
+    //  Por Wi-Fi
+    // -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Conecta con un movil por red (<c>adb connect ip:puerto</c>). Devuelve lo que dice adb.
+    /// </summary>
+    /// <remarks>
+    /// <c>adb connect</c> sale con 0 aunque no consiga conectar —«cannot connect», «failed to
+    /// authenticate»—, asi que el resultado se lee del texto: solo «connected to» o «already
+    /// connected» son exito. Sin puerto se pone el 5555, el de la depuracion por red de toda la vida.
+    /// </remarks>
+    public async Task<string> ConnectAsync(string address, CancellationToken cancellationToken = default)
+    {
+        var output = (await RunAsync(["connect", WithPort(address)], cancellationToken).ConfigureAwait(false)).Trim();
+        if (!IsConnected(output))
+            throw new InvalidOperationException(output.Length > 0 ? output : $"adb connect {address}");
+
+        return output;
+    }
+
+    /// <summary>
+    /// Empareja con la «Depuracion inalambrica» de Android 11+ (<c>adb pair ip:puerto codigo</c>).
+    /// El puerto y el codigo son los que enseña el movil en «Vincular dispositivo con un codigo»,
+    /// y son distintos del puerto de conexion.
+    /// </summary>
+    public async Task<string> PairAsync(string address, string code, CancellationToken cancellationToken = default)
+    {
+        var output = (await RunAsync(["pair", address.Trim(), code.Trim()], cancellationToken).ConfigureAwait(false)).Trim();
+        if (!output.Contains("Successfully paired", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException(output.Length > 0 ? output : $"adb pair {address}");
+
+        return output;
+    }
+
+    public Task DisconnectAsync(string address, CancellationToken cancellationToken = default) =>
+        RunAsync(["disconnect", WithPort(address)], cancellationToken);
+
+    /// <summary>Un numero de serie de adb es una direccion de red si lleva «ip:puerto».</summary>
+    public static bool IsNetworkSerial(string serial) =>
+        serial.Contains(':') && serial.Split(':') is [var host, var port] && host.Contains('.') && int.TryParse(port, out _);
+
+    private static string WithPort(string address)
+    {
+        var trimmed = address.Trim();
+        return trimmed.Contains(':') ? trimmed : $"{trimmed}:5555";
+    }
+
+    private static bool IsConnected(string output) =>
+        output.Contains("connected to", StringComparison.OrdinalIgnoreCase) &&
+        !output.Contains("cannot connect", StringComparison.OrdinalIgnoreCase) &&
+        !output.Contains("failed", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Lanza un <c>adb shell</c> que se queda corriendo (el servidor de scrcpy) y devuelve el

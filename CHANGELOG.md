@@ -1,5 +1,13 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.13.2 — Conectar por Wi-Fi
+
+- Botón **Wi-Fi** junto al de buscar móviles: pide la dirección del móvil (IP o IP:puerto) y lo
+  conecta por red con adb, sin abrir una consola. Para la «Depuración inalámbrica» de Android 11+,
+  la misma ventana hace la vinculación con el código de seis cifras.
+- Las direcciones que han funcionado se recuerdan y se vuelven a conectar al arrancar: el móvil que
+  esté encendido y en la misma red aparece en la lista solo.
+
 ## 2026.9.13.1 — Botón de silencio
 
 - Botón de **silenciar** junto a los de volumen: manda la tecla de silencio del móvil (alterna

@@ -52,6 +52,11 @@ public partial class MainWindow : Window
             MirrorArea.Focus();
             await RefreshDevicesAsync();
             _deviceTimer.Start();
+
+            // Los moviles que se conectaron por Wi-Fi otras veces: se les vuelve a llamar en
+            // segundo plano y el que este encendido aparece solo en la lista. No se espera a los
+            // que no contesten (adb tarda unos segundos en darlos por perdidos).
+            _ = ReconnectRememberedAsync();
         };
         Closing += async (_, _) => await DisconnectAsync();
 
@@ -70,6 +75,7 @@ public partial class MainWindow : Window
     {
         Title = Loc.Get("AppTitle");
         RefreshButton.ToolTip = Loc.Get("RefreshTooltip");
+        WifiButton.ToolTip = Loc.Get("WifiTooltip");
         ConnectButton.ToolTip = Loc.Get("ConnectTooltip");
         DisconnectButton.ToolTip = Loc.Get("DisconnectTooltip");
         BackButton.ToolTip = Loc.Get("BackTooltip");
@@ -117,6 +123,7 @@ public partial class MainWindow : Window
         DisconnectButton.Visibility = connected ? Visibility.Visible : Visibility.Collapsed;
         // El desplegable sigue activo con sesion: elegir otro movil cambia de sesion.
         RefreshButton.IsEnabled = !connected;
+        WifiButton.IsEnabled = !connected;
 
         foreach (var button in new[] { BackButton, HomeButton, RecentsButton, NotificationsButton, PowerButton,
                      RotateButton, VolumeDownButton, VolumeUpButton, MuteButton, ScreenshotButton, CopyButton, PasteButton })
@@ -186,6 +193,44 @@ public partial class MainWindow : Window
     }
 
     private async void OnRefreshClick(object sender, RoutedEventArgs e) => await RefreshDevicesAsync();
+
+    private async void OnWifiClick(object sender, RoutedEventArgs e)
+    {
+        var dialog = new WifiWindow(_adb) { Owner = this };
+        if (dialog.ShowDialog() != true || dialog.ConnectedAddress is null)
+            return;
+
+        // El recien conectado pasa a ser el elegido del desplegable: es el que se queria ver.
+        await RefreshDevicesAsync();
+        var wanted = dialog.ConnectedAddress.Contains(':') ? dialog.ConnectedAddress : dialog.ConnectedAddress + ":5555";
+        var device = DeviceBox.Items.Cast<AdbDevice>().FirstOrDefault(d => string.Equals(d.Serial, wanted, StringComparison.OrdinalIgnoreCase));
+        if (device is not null)
+        {
+            DeviceBox.SelectedItem = device;
+            ConnectButton.IsEnabled = device.IsReady;
+        }
+
+        SetStatus(Loc.Format("WifiConnected", dialog.ConnectedAddress));
+    }
+
+    private async Task ReconnectRememberedAsync()
+    {
+        if (!_adb.IsAvailable)
+            return;
+
+        foreach (var address in WifiAddresses.Load())
+        {
+            try
+            {
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                await _adb.ConnectAsync(address, timeout.Token);
+            }
+            catch (Exception)
+            {
+                // Apagado o en otra red: nada que hacer, seguira en la lista para la proxima.
+            }
+        }
+    }
 
     // =====================================================================
     //  Sesion
