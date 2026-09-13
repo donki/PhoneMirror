@@ -1,4 +1,4 @@
-<Window x:Class="PhoneMirror.MainWindow"
+﻿<Window x:Class="PhoneMirror.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:PhoneMirror.Localization"
@@ -57,6 +57,10 @@
                         ToolTip="{loc:T VolumeDownTooltip}" Click="OnVolumeDownClick" />
                 <Button x:Name="VolumeUpButton" Style="{StaticResource GhostIconButton}" Content="&#xE995;"
                         ToolTip="{loc:T VolumeUpTooltip}" Click="OnVolumeUpClick" />
+                <!-- Silenciar: la tecla de silencio del movil (alterna), no el audio de esta ventana,
+                     que no se reenvia. -->
+                <Button x:Name="MuteButton" Style="{StaticResource GhostIconButton}" Content="&#xE74F;"
+                        ToolTip="{loc:T MuteTooltip}" Click="OnMuteClick" />
 
                 <Rectangle Width="1" Height="24" Fill="{DynamicResource Separator}" Margin="8,0" />
 

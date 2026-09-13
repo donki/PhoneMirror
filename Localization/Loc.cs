@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Markup;
 
 namespace PhoneMirror.Localization;
@@ -52,6 +52,7 @@ public static class Loc
         ["RotateTooltip"] = "Rotate",
         ["VolumeUpTooltip"] = "Volume up",
         ["VolumeDownTooltip"] = "Volume down",
+        ["MuteTooltip"] = "Mute / unmute the phone",
         ["NotificationsTooltip"] = "Notifications",
         ["ScreenshotTooltip"] = "Save a screenshot",
         ["PasteTooltip"] = "Paste the PC clipboard on the phone",
@@ -108,6 +109,7 @@ public static class Loc
         ["RotateTooltip"] = "Girar",
         ["VolumeUpTooltip"] = "Subir volumen",
         ["VolumeDownTooltip"] = "Bajar volumen",
+        ["MuteTooltip"] = "Silenciar / activar el sonido del móvil",
         ["NotificationsTooltip"] = "Notificaciones",
         ["ScreenshotTooltip"] = "Guardar una captura",
         ["PasteTooltip"] = "Pegar el portapapeles del PC en el móvil",

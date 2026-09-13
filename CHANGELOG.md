@@ -1,5 +1,10 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.13.1 — Botón de silencio
+
+- Botón de **silenciar** junto a los de volumen: manda la tecla de silencio del móvil (alterna
+  silencio / sonido). Es el sonido del teléfono lo que se silencia; esta ventana no reproduce audio.
+
 ## 2026.9.11.1 — Primera versión
 
 - Espejo del móvil conectado por USB en una ventana de Windows: `scrcpy-server` en el móvil,

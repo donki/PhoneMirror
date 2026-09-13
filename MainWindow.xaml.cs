@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -80,6 +80,7 @@ public partial class MainWindow : Window
         RotateButton.ToolTip = Loc.Get("RotateTooltip");
         VolumeDownButton.ToolTip = Loc.Get("VolumeDownTooltip");
         VolumeUpButton.ToolTip = Loc.Get("VolumeUpTooltip");
+        MuteButton.ToolTip = Loc.Get("MuteTooltip");
         ScreenshotButton.ToolTip = Loc.Get("ScreenshotTooltip");
         CopyButton.ToolTip = Loc.Get("CopyTooltip");
         PasteButton.ToolTip = Loc.Get("PasteTooltip");
@@ -118,7 +119,7 @@ public partial class MainWindow : Window
         RefreshButton.IsEnabled = !connected;
 
         foreach (var button in new[] { BackButton, HomeButton, RecentsButton, NotificationsButton, PowerButton,
-                     RotateButton, VolumeDownButton, VolumeUpButton, ScreenshotButton, CopyButton, PasteButton })
+                     RotateButton, VolumeDownButton, VolumeUpButton, MuteButton, ScreenshotButton, CopyButton, PasteButton })
         {
             button.IsEnabled = connected;
         }
@@ -585,6 +586,14 @@ public partial class MainWindow : Window
     {
         if (_session?.Control is { } control)
             await control.PressKeyAsync(AndroidKeys.VolumeDown);
+    }
+
+    // La tecla de silencio del movil: alterna, como en un mando. Es el volumen del telefono lo
+    // que se silencia; el audio no se reenvia a esta ventana (ScrcpySession lo desactiva).
+    private async void OnMuteClick(object sender, RoutedEventArgs e)
+    {
+        if (_session?.Control is { } control)
+            await control.PressKeyAsync(AndroidKeys.VolumeMute);
     }
 
     private void OnScreenshotClick(object sender, RoutedEventArgs e)
