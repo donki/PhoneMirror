@@ -1,5 +1,16 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.14.0 — adb se instala solo y la ventana se abre al enchufar el móvil
+
+- **Sin adb, se descarga**: si en el equipo no hay platform-tools, la aplicación las baja de Google
+  (`dl.google.com`, unos 8 MB) al primer arranque y deja `adb.exe` en
+  `%LOCALAPPDATA%\sOCPhoneMirror\platform-tools`. No se redistribuye nada: la licencia del SDK de
+  Android no lo permite, y por eso no va en el paquete ni en un zip propio.
+- **Abrir al conectar un móvil** (botón 📱 en la barra, como Vysor): la aplicación arranca con
+  Windows escondida en la bandeja y, en cuanto adb ve un móvil (por USB o por Wi-Fi), enseña la
+  ventana y lo espeja. Al desenchufarlo vuelve a la bandeja; cerrar la ventana la esconde, y
+  «Salir» está en el menú del icono. El ajuste es la propia entrada de arranque de Windows.
+
 ## 2026.9.13.2 — Conectar por Wi-Fi
 
 - Botón **Wi-Fi** junto al de buscar móviles: pide la dirección del móvil (IP o IP:puerto) y lo

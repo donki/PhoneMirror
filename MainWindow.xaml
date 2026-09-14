@@ -75,6 +75,9 @@
                         ToolTip="{loc:T PasteTooltip}" Click="OnPasteClick" />
                 <ToggleButton x:Name="TopmostButton" Style="{StaticResource ToggleIconButton}" Content="&#xE840;"
                               ToolTip="{loc:T AlwaysOnTopTooltip}" Checked="OnTopmostChanged" Unchecked="OnTopmostChanged" />
+                <!-- Abrir al conectar un movil: arranca con Windows en la bandeja y se enseña sola. -->
+                <ToggleButton x:Name="OpenOnConnectButton" Style="{StaticResource ToggleIconButton}" Content="&#xE8EA;"
+                              ToolTip="{loc:T OpenOnConnectTooltip}" Checked="OnOpenOnConnectChanged" Unchecked="OnOpenOnConnectChanged" />
                 <Button x:Name="LanguageButton" Style="{StaticResource GhostIconButton}" Content="&#xE8C1;"
                         ToolTip="{loc:T LanguageTooltip}" Click="OnLanguageClick" />
                 <Button x:Name="AboutButton" Style="{StaticResource GhostIconButton}" Content="&#xE946;"

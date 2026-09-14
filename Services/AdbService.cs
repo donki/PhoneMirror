@@ -37,7 +37,10 @@ public sealed class AdbService
     }
 
     /// <summary>Ruta de <c>adb.exe</c>, o <c>null</c> si no se encuentra.</summary>
-    public string? ExecutablePath { get; }
+    public string? ExecutablePath { get; private set; }
+
+    /// <summary>Vuelve a buscar adb (despues de que <see cref="AdbInstaller"/> lo haya bajado).</summary>
+    public void Relocate() => ExecutablePath = Locate();
 
     public bool IsAvailable => ExecutablePath is not null;
 
@@ -50,6 +53,9 @@ public sealed class AdbService
 
         candidates.Add(Path.Combine(AppContext.BaseDirectory, "adb.exe"));
         candidates.Add(Path.Combine(AppContext.BaseDirectory, "platform-tools", "adb.exe"));
+
+        // El que se baja de Google cuando no hay ninguno (AdbInstaller).
+        candidates.Add(AdbInstaller.ExecutablePath);
 
         foreach (var variable in new[] { "ANDROID_HOME", "ANDROID_SDK_ROOT" })
         {

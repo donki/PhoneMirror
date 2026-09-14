@@ -34,6 +34,13 @@ public partial class MainWindow : Window
 
     private bool _autoConnected;
 
+    /// <summary>Arrancar escondida en la bandeja y enseñarse al enchufar un movil (opcion --tray).</summary>
+    public bool StartInTray { get; init; }
+
+    private TrayIconHost? _tray;
+    private bool _quitting;
+    private bool _loadingToggles;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -50,6 +57,7 @@ public partial class MainWindow : Window
         Loaded += async (_, _) =>
         {
             MirrorArea.Focus();
+            await EnsureAdbAsync();
             await RefreshDevicesAsync();
             _deviceTimer.Start();
 
@@ -58,7 +66,26 @@ public partial class MainWindow : Window
             // que no contesten (adb tarda unos segundos en darlos por perdidos).
             _ = ReconnectRememberedAsync();
         };
-        Closing += async (_, _) => await DisconnectAsync();
+        Closing += async (_, e) =>
+        {
+            // En modo bandeja, cerrar la ventana es esconderla: la aplicacion sigue esperando al
+            // siguiente movil. Salir de verdad se hace desde el menu del icono.
+            if (_tray is not null && !_quitting)
+            {
+                e.Cancel = true;
+                await DisconnectAsync();
+                Hide();
+                return;
+            }
+
+            await DisconnectAsync();
+            _tray?.Dispose();
+        };
+
+        _loadingToggles = true;
+        OpenOnConnectButton.IsChecked = OpenOnConnect.IsEnabled;
+        _loadingToggles = false;
+
 
         PreviewKeyDown += OnPreviewKeyDown;
         PreviewKeyUp += OnPreviewKeyUp;
@@ -91,6 +118,8 @@ public partial class MainWindow : Window
         CopyButton.ToolTip = Loc.Get("CopyTooltip");
         PasteButton.ToolTip = Loc.Get("PasteTooltip");
         TopmostButton.ToolTip = Loc.Get("AlwaysOnTopTooltip");
+        OpenOnConnectButton.ToolTip = Loc.Get("OpenOnConnectTooltip");
+        _tray?.SetText(Loc.Get("TrayWaiting"));
         LanguageButton.ToolTip = Loc.Get("LanguageTooltip");
         AboutButton.ToolTip = Loc.Get("AboutTooltip");
         UpdatePlaceholder();
@@ -136,6 +165,102 @@ public partial class MainWindow : Window
     //  Dispositivos
     // =====================================================================
 
+    // =====================================================================
+    //  adb: si no hay, se baja de Google
+    // =====================================================================
+
+    private bool _installingAdb;
+
+    /// <summary>Sin adb no hay nada que hacer: se baja de Google al primer arranque y ya esta.</summary>
+    private async Task EnsureAdbAsync()
+    {
+        if (_adb.IsAvailable || _installingAdb)
+            return;
+
+        _installingAdb = true;
+        SetStatus(Loc.Get("AdbDownloading"));
+        PlaceholderText.Text = Loc.Get("AdbDownloading");
+        try
+        {
+            await AdbInstaller.InstallAsync();
+            _adb.Relocate();
+            SetStatus(Loc.Format("AdbInstalled", AdbInstaller.Folder));
+        }
+        catch (Exception ex)
+        {
+            SetStatus(Loc.Format("AdbDownloadFailed", ex.Message));
+        }
+        finally
+        {
+            _installingAdb = false;
+            UpdatePlaceholder();
+        }
+    }
+
+    // =====================================================================
+    //  Abrir al conectar un movil (bandeja)
+    // =====================================================================
+
+    /// <summary>
+    /// Arranque en bandeja (opcion --tray): sin Show(). La ventana existe pero no se ve, y como
+    /// Loaded no llega hasta que se enseña, el temporizador de moviles se arranca aqui a mano.
+    /// Lo llama App despues de construir la ventana (las propiedades init aun no estan puestas
+    /// dentro del constructor).
+    /// </summary>
+    public async void RunInTray()
+    {
+        ShowTrayIcon();
+        await EnsureAdbAsync();
+        _deviceTimer.Start();
+    }
+
+    private void ShowTrayIcon()
+    {
+        if (_tray is not null)
+            return;
+
+        _tray = new TrayIconHost(Loc.Get("TrayOpen"), Loc.Get("TrayQuit"));
+        _tray.SetText(Loc.Get("TrayWaiting"));
+        _tray.Activated += (_, _) => ShowFromTray();
+        _tray.QuitRequested += (_, _) =>
+        {
+            _quitting = true;
+            Close();
+            Application.Current.Shutdown();
+        };
+    }
+
+    private void ShowFromTray()
+    {
+        Show();
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        Activate();
+    }
+
+    private void OnOpenOnConnectChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loadingToggles)
+            return;
+
+        var enabled = OpenOnConnectButton.IsChecked == true;
+        OpenOnConnect.Set(enabled);
+
+        // Al activarlo, la ventana ya se queda vigilando desde ahora: cerrar la esconde en la
+        // bandeja y el siguiente movil la abre. Al desactivarlo, el icono se va.
+        if (enabled)
+        {
+            ShowTrayIcon();
+            SetStatus(Loc.Get("OpenOnConnectOn"));
+        }
+        else
+        {
+            _tray?.Dispose();
+            _tray = null;
+            SetStatus(Loc.Get("OpenOnConnectOff"));
+        }
+    }
+
     private async Task RefreshDevicesAsync()
     {
         if (!_adb.IsAvailable)
@@ -172,6 +297,14 @@ public partial class MainWindow : Window
         if (AutoConnect && _session is null && ConnectButton.IsEnabled && !_autoConnected)
         {
             _autoConnected = true;
+            await ConnectAsync();
+        }
+
+        // Como Vysor: con el icono en la bandeja, el movil que aparece abre la ventana y se espeja.
+        if (_tray is not null && _session is null && ConnectButton.IsEnabled && !_installingAdb)
+        {
+            if (!IsVisible)
+                ShowFromTray();
             await ConnectAsync();
         }
     }
@@ -262,6 +395,11 @@ public partial class MainWindow : Window
             await DisconnectAsync();
             if (reason is not null)
                 SetStatus(Loc.Format("SessionEnded", reason));
+
+            // Se ha desenchufado el movil: en modo bandeja la ventana vuelve a esconderse y se
+            // queda esperando al siguiente.
+            if (_tray is not null && StartInTray)
+                Hide();
         });
         session.ServerOutput += line => AppLog.Write($"[scrcpy] {line}");
 
