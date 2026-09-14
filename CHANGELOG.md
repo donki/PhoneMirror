@@ -1,5 +1,11 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.14.1 — Se conecta sola al abrir
+
+- Al abrir la aplicación con un móvil enchufado (o al enchufarlo con la ventana abierta y sin
+  sesión) se conecta sola, sin pulsar nada. Si pulsas Desconectar, no vuelve a conectarse con ese
+  móvil hasta que lo desenchufes y lo vuelvas a enchufar.
+
 ## 2026.9.14.0 — adb se instala solo y la ventana se abre al enchufar el móvil
 
 - **Sin adb, se descarga**: si en el equipo no hay platform-tools, la aplicación las baja de Google

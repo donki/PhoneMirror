@@ -34,6 +34,13 @@ public partial class MainWindow : Window
 
     private bool _autoConnected;
 
+    /// <summary>
+    /// El usuario ha pulsado Desconectar: no se vuelve a conectar solo con ese movil hasta que se
+    /// desenchufe y vuelva, o hasta que aparezca otro. Sin esto, desconectar a mano no serviria de nada.
+    /// </summary>
+    private bool _userDisconnected;
+    private string _lastReadySerials = string.Empty;
+
     /// <summary>Arrancar escondida en la bandeja y enseñarse al enchufar un movil (opcion --tray).</summary>
     public bool StartInTray { get; init; }
 
@@ -300,6 +307,22 @@ public partial class MainWindow : Window
             await ConnectAsync();
         }
 
+        // Al abrir la aplicacion con un movil enchufado se conecta sola, y lo mismo cuando se
+        // enchufa uno mientras la ventana esta abierta sin sesion: para eso se abre. Solo se
+        // respeta al usuario que ha pulsado Desconectar, mientras siga el mismo movil.
+        var readySerials = string.Join("|", DeviceBox.Items.Cast<AdbDevice>().Where(d => d.IsReady).Select(d => d.Serial).OrderBy(s => s));
+        if (readySerials != _lastReadySerials)
+        {
+            _lastReadySerials = readySerials;
+            _userDisconnected = false;
+        }
+
+        if (_session is null && ConnectButton.IsEnabled && !_userDisconnected && !_installingAdb && IsVisible)
+        {
+            await ConnectAsync();
+            return;
+        }
+
         // Como Vysor: con el icono en la bandeja, el movil que aparece abre la ventana y se espeja.
         if (_tray is not null && _session is null && ConnectButton.IsEnabled && !_installingAdb)
         {
@@ -371,7 +394,11 @@ public partial class MainWindow : Window
 
     private async void OnConnectClick(object sender, RoutedEventArgs e) => await ConnectAsync();
 
-    private async void OnDisconnectClick(object sender, RoutedEventArgs e) => await DisconnectAsync();
+    private async void OnDisconnectClick(object sender, RoutedEventArgs e)
+    {
+        _userDisconnected = true;
+        await DisconnectAsync();
+    }
 
     private async Task ConnectAsync()
     {
