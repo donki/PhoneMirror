@@ -1,5 +1,12 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.15.0 — Siempre en la bandeja
+
+- La aplicación vive en la bandeja del sistema: el icono está siempre, y cerrar o minimizar la
+  ventana la esconde en vez de salir (se sale con «Salir» en el menú del icono, o se vuelve a abrir
+  con un clic). El interruptor «abrir al conectar» ya solo decide si el móvil que se enchufa abre
+  la ventana escondida y si la aplicación arranca con Windows.
+
 ## 2026.9.14.1 — Se conecta sola al abrir
 
 - Al abrir la aplicación con un móvil enchufado (o al enchufarlo con la ventana abierta y sin

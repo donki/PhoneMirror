@@ -73,10 +73,18 @@ public partial class MainWindow : Window
             // que no contesten (adb tarda unos segundos en darlos por perdidos).
             _ = ReconnectRememberedAsync();
         };
+        // La aplicacion vive en la bandeja: cerrar o minimizar la ventana la esconde y el icono se
+        // queda esperando; salir de verdad es «Salir» en el menu del icono.
+        ShowTrayIcon();
+        StateChanged += (_, _) =>
+        {
+            if (WindowState == WindowState.Minimized && _tray is not null && !_quitting)
+                Hide();
+        };
         Closing += async (_, e) =>
         {
-            // En modo bandeja, cerrar la ventana es esconderla: la aplicacion sigue esperando al
-            // siguiente movil. Salir de verdad se hace desde el menu del icono.
+            // Cerrar la ventana es esconderla: la aplicacion sigue esperando al siguiente movil.
+            // Salir de verdad se hace desde el menu del icono.
             if (_tray is not null && !_quitting)
             {
                 e.Cancel = true;
@@ -242,6 +250,7 @@ public partial class MainWindow : Window
         Show();
         if (WindowState == WindowState.Minimized)
             WindowState = WindowState.Normal;
+        ShowInTaskbar = true;
         Activate();
     }
 
@@ -253,19 +262,9 @@ public partial class MainWindow : Window
         var enabled = OpenOnConnectButton.IsChecked == true;
         OpenOnConnect.Set(enabled);
 
-        // Al activarlo, la ventana ya se queda vigilando desde ahora: cerrar la esconde en la
-        // bandeja y el siguiente movil la abre. Al desactivarlo, el icono se va.
-        if (enabled)
-        {
-            ShowTrayIcon();
-            SetStatus(Loc.Get("OpenOnConnectOn"));
-        }
-        else
-        {
-            _tray?.Dispose();
-            _tray = null;
-            SetStatus(Loc.Get("OpenOnConnectOff"));
-        }
+        // El icono de la bandeja esta siempre; esto solo decide si el movil que se enchufa abre
+        // la ventana escondida (y si la aplicacion arranca con Windows).
+        SetStatus(Loc.Get(enabled ? "OpenOnConnectOn" : "OpenOnConnectOff"));
     }
 
     private async Task RefreshDevicesAsync()
@@ -323,8 +322,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Como Vysor: con el icono en la bandeja, el movil que aparece abre la ventana y se espeja.
-        if (_tray is not null && _session is null && ConnectButton.IsEnabled && !_installingAdb)
+        // Como Vysor: con «abrir al conectar», el movil que aparece abre la ventana escondida y se espeja.
+        if (OpenOnConnect.IsEnabled && _session is null && ConnectButton.IsEnabled && !_installingAdb)
         {
             if (!IsVisible)
                 ShowFromTray();
@@ -423,8 +422,8 @@ public partial class MainWindow : Window
             if (reason is not null)
                 SetStatus(Loc.Format("SessionEnded", reason));
 
-            // Se ha desenchufado el movil: en modo bandeja la ventana vuelve a esconderse y se
-            // queda esperando al siguiente.
+            // Se ha desenchufado el movil: si la aplicacion arranco escondida (con Windows), la
+            // ventana vuelve a esconderse y se queda esperando al siguiente.
             if (_tray is not null && StartInTray)
                 Hide();
         });
