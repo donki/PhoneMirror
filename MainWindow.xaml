@@ -100,6 +100,17 @@
                     <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="48" Text="&#xE8EA;"
                                Foreground="{DynamicResource Primary}" HorizontalAlignment="Center" Margin="0,0,0,12" />
                     <TextBlock x:Name="PlaceholderText" Style="{StaticResource BodyText}" TextAlignment="Center" />
+                    <!-- Sin adb: descargarlo de Google, o señalar uno que ya este en el PC. -->
+                    <StackPanel x:Name="AdbActions" Orientation="Horizontal" HorizontalAlignment="Center"
+                                Margin="0,14,0,0" Visibility="Collapsed">
+                        <Button x:Name="DownloadAdbButton" Style="{StaticResource IconButton}" Content="&#xE896;"
+                                ToolTip="{loc:T DownloadAdbTooltip}" Click="OnDownloadAdbClick" Margin="0,0,10,0" />
+                        <Button x:Name="LocateAdbButton" Style="{StaticResource GhostIconButton}" Content="&#xE8DA;"
+                                ToolTip="{loc:T LocateAdbTooltip}" Click="OnLocateAdbClick" />
+                    </StackPanel>
+                    <!-- Como activar el control desde el PC en cada marca: Xiaomi pide un ajuste mas. -->
+                    <TextBlock x:Name="PlaceholderHint" Style="{StaticResource HintText}" TextAlignment="Center"
+                               TextWrapping="Wrap" Margin="0,12,0,0" Visibility="Collapsed" />
                 </StackPanel>
             </Border>
         </Grid>

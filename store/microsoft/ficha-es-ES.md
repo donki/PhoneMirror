@@ -13,6 +13,9 @@ sOC Phone Mirror
 ## Descripción
 
 ```
+Requiere las platform-tools de Android (adb) de Google, que no vienen dentro: si no están en el PC,
+la aplicación las descarga de dl.google.com al primer arranque (7 MB) o puedes señalar tu copia.
+
 sOC Phone Mirror enseña la pantalla de tu móvil Android en una ventana de Windows y te deja manejarlo
 desde el PC: tocas con el ratón, escribes con el teclado y arrastras ficheros.
 
@@ -33,15 +36,26 @@ Todo pasa por el cable USB entre el PC y el móvil. No hay servidor, no hay cuen
 internet. Sin anuncios, sin rastreadores y sin analítica.
 
 QUÉ NECESITA
-Un móvil o tablet Android (5.0 o superior) con la depuración USB activada, y las platform-tools de
-Android (adb) en el PC. La aplicación las busca sola en los sitios habituales.
+Un móvil o tablet Android (5.0 o superior) con la depuración USB activada (Ajustes › Opciones de
+desarrollador). En Xiaomi, Redmi y POCO hay que activar además «Depuración USB (ajustes de
+seguridad)»: sin eso se ve la pantalla pero el ratón y el teclado no la controlan. Y las
+platform-tools de Android (adb) de Google en el PC: la aplicación las busca en los sitios
+habituales, las descarga de Google si no están, o le señalas dónde las tienes.
 
 Software libre bajo licencia MIT. En español y en inglés, con modo claro y oscuro.
 ```
 
 ## Novedades de esta versión
 
-Se deja **en blanco** en el primer envío.
+```
+Si no hay adb en el PC, se descarga de Google o se puede señalar una copia. Aviso de la depuración
+USB (ajustes de seguridad) en Xiaomi. La aplicación vive en la bandeja y se conecta sola al
+enchufar el móvil. Conexión por Wi-Fi y botón de silencio.
+```
+
+Nota del envío del 2026-09-15 (rechazado por 10.1.2.10 y 10.2.4.1): las dos primeras líneas de la
+descripción declaran la dependencia de las platform-tools, y la aplicación ya las descarga o deja
+señalarlas.
 
 ## Características del producto
 

@@ -1,5 +1,19 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.16.0 — adb se encuentra, se descarga o se señala; aviso de Xiaomi
+
+- **Sin adb no se queda parada**: si no lo encuentra, el aviso trae dos botones, descargar las
+  platform-tools de Google (7 MB) o **buscar adb.exe** en el PC (la ruta se recuerda). Además busca
+  en muchos más sitios: raíz de las unidades, Descargas, Escritorio, Documentos, `C:\Android`,
+  `Program Files\Android`, carpetas `platform-tools` y `scrcpy` sueltas… La Microsoft Store
+  rechazó el envío del 15-09 porque «adb.exe no se encontraba aunque las platform-tools estaban
+  instaladas» (10.1.2.10): estaban fuera del PATH.
+- **Aviso de la depuración USB**: sin móvil o sin autorizar, la ventana recuerda cómo activar la
+  depuración USB y que en Xiaomi, Redmi y POCO hace falta también «Depuración USB (ajustes de
+  seguridad)», que es lo que deja al ratón y al teclado del PC manejar el móvil.
+- Ficha de la Store: la dependencia de las platform-tools va en las dos primeras líneas de la
+  descripción, como pide la política 10.2.4.1.
+
 ## 2026.9.15.0 — Siempre en la bandeja
 
 - La aplicación vive en la bandeja del sistema: el icono está siempre, y cerrar o minimizar la

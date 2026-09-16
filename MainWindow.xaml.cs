@@ -153,6 +153,47 @@ public partial class MainWindow : Window
             : DeviceBox.Items.Count == 0 ? Loc.Get("NoDevices")
             : DeviceBox.SelectedItem is AdbDevice { State: "unauthorized" } ? Loc.Get("Unauthorized")
             : Loc.Get("DropHint");
+        AdbActions.Visibility = !_adb.IsAvailable && !_installingAdb ? Visibility.Visible : Visibility.Collapsed;
+
+        // Sin movil o sin autorizar: recordar que hace falta la depuracion USB y, en Xiaomi/Redmi/
+        // POCO (HyperOS/MIUI), ademas «Depuracion USB (ajustes de seguridad)», que es lo que deja
+        // que el raton y el teclado del PC manejen el movil. Sin eso se ve la pantalla pero no responde.
+        var needsHint = _adb.IsAvailable && (DeviceBox.Items.Count == 0 || DeviceBox.SelectedItem is AdbDevice { State: "unauthorized" });
+        PlaceholderHint.Text = Loc.Get("DebuggingHint");
+        PlaceholderHint.Visibility = needsHint ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private async void OnDownloadAdbClick(object sender, RoutedEventArgs e)
+    {
+        _adb.Relocate();
+        await EnsureAdbAsync();
+        await RefreshDevicesAsync();
+    }
+
+    /// <summary>Señalar un adb.exe que ya este en el PC (platform-tools descargadas a mano, Android Studio…).</summary>
+    private async void OnLocateAdbClick(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = Loc.Get("LocateAdbTooltip"),
+            Filter = "adb.exe|adb.exe",
+            FileName = "adb.exe",
+            CheckFileExists = true,
+        };
+        if (dialog.ShowDialog(this) != true)
+            return;
+        AdbService.RememberChosen(dialog.FileName);
+        _adb.Relocate();
+        if (_adb.IsAvailable)
+        {
+            SetStatus(Loc.Format("AdbInstalled", System.IO.Path.GetDirectoryName(dialog.FileName) ?? dialog.FileName));
+            _deviceTimer.Start();
+            await RefreshDevicesAsync();
+        }
+        else
+        {
+            SetStatus(Loc.Get("NoAdb"));
+        }
     }
 
     private void SetStatus(string text)

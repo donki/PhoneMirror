@@ -25,11 +25,61 @@ public sealed record AdbDevice(string Serial, string State, string Model)
 /// </remarks>
 public sealed class AdbService
 {
+    // Donde suele acabar el SDK o las platform-tools sueltas cuando alguien las descarga a mano (la
+    // Store probo con las platform-tools «instaladas» y no se encontraban: no estaban en el PATH).
     private static readonly string[] SdkCandidates =
     [
         @"C:\Program Files (x86)\Android\android-sdk",
+        @"C:\Program Files\Android\android-sdk",
+        @"C:\Android",
+        @"C:\Android\Sdk",
+        @"C:\Android\android-sdk",
+        @"D:\Android",
+        @"D:\Android\Sdk",
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Android", "Sdk"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Android", "android-sdk"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Android", "Sdk"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Android", "Sdk"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Android"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "android-sdk"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Android"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Android"),
     ];
+
+    // Carpetas de platform-tools sueltas (el zip de Google descomprimido): la raiz de las unidades,
+    // el perfil, Descargas, Escritorio y Documentos, con o sin el nombre de la carpeta del zip.
+    private static IEnumerable<string> LooseCandidates()
+    {
+        var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var roots = new List<string>
+        {
+            profile,
+            Path.Combine(profile, "Downloads"),
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+        };
+        foreach (var drive in DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed))
+            roots.Add(drive.RootDirectory.FullName);
+        foreach (var root in roots.Where(r => r.Length > 0))
+        {
+            yield return Path.Combine(root, "platform-tools", "adb.exe");
+            yield return Path.Combine(root, "platform-tools-latest-windows", "platform-tools", "adb.exe");
+            yield return Path.Combine(root, "adb", "adb.exe");
+            yield return Path.Combine(root, "scrcpy", "adb.exe");
+        }
+    }
+
+    /// <summary>Ruta elegida a mano con «Buscar adb.exe…», recordada entre sesiones.</summary>
+    private static readonly string ChosenPathFile = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "sOCPhoneMirror", "adb-path.txt");
+
+    public static void RememberChosen(string path)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(ChosenPathFile)!);
+        File.WriteAllText(ChosenPathFile, path);
+    }
 
     public AdbService()
     {
@@ -47,6 +97,14 @@ public sealed class AdbService
     private static string? Locate()
     {
         var candidates = new List<string>();
+
+        // Primero lo que eligio el usuario a mano, luego la variable ADB.
+        try
+        {
+            if (File.Exists(ChosenPathFile) && File.ReadAllText(ChosenPathFile).Trim() is { Length: > 0 } chosen)
+                candidates.Add(chosen);
+        }
+        catch (Exception) { }
 
         if (Environment.GetEnvironmentVariable("ADB") is { Length: > 0 } fromEnv)
             candidates.Add(fromEnv);
@@ -69,7 +127,9 @@ public sealed class AdbService
         foreach (var dir in (Environment.GetEnvironmentVariable("PATH") ?? string.Empty).Split(';', StringSplitOptions.RemoveEmptyEntries))
             candidates.Add(Path.Combine(dir.Trim(), "adb.exe"));
 
-        return candidates.FirstOrDefault(File.Exists);
+        candidates.AddRange(LooseCandidates());
+
+        return candidates.FirstOrDefault(p => { try { return File.Exists(p); } catch (Exception) { return false; } });
     }
 
     public async Task<IReadOnlyList<AdbDevice>> ListDevicesAsync(CancellationToken cancellationToken = default)
