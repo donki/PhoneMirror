@@ -13,8 +13,7 @@ sOC Phone Mirror
 ## Description
 
 ```
-Requires Google's Android platform-tools (adb), which are not bundled: if they are not on the PC,
-the app downloads them from dl.google.com on first run (7 MB), or you can point to your own copy.
+Includes adb (Google's Android platform-tools, Apache 2.0): nothing else to install.
 
 sOC Phone Mirror shows your Android phone's screen in a Windows window and lets you control it from
 the PC: touch with the mouse, type with the keyboard and drag files onto it.
@@ -38,9 +37,8 @@ goes to the internet. No ads, no trackers, no analytics.
 WHAT IT NEEDS
 An Android phone or tablet (5.0 or later) with USB debugging enabled (Settings › Developer
 options). On Xiaomi, Redmi and POCO also turn on "USB debugging (Security settings)": without it
-the screen shows but the mouse and keyboard cannot control it. And Google's Android platform-tools
-(adb) on the PC: the app looks for them in the usual places, downloads them from Google if they are
-missing, or lets you point to where you keep them.
+the screen shows but the mouse and keyboard cannot control it. adb (Google's Android
+platform-tools) is included with the app.
 
 Free software under the MIT licence. Spanish and English, light and dark mode.
 ```

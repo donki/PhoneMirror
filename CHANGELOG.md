@@ -1,5 +1,15 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.16.1 — adb va dentro del paquete
+
+- **adb, sus dos DLL y su NOTICE van dentro** (`Assets\platform-tools`, platform-tools r37.0.1,
+  Apache 2.0: la cláusula 3.6 de la licencia del SDK remite los componentes de código abierto a su
+  propia licencia, como hace scrcpy). Ya no hace falta tener nada instalado ni descargar nada: la
+  descarga y «buscar adb.exe» quedan de respaldo.
+- **adb en el PATH**: la versión portable añade `Assets\platform-tools` al PATH del usuario al
+  arrancar (si no hay ya otro adb en el PATH) y avisa a Windows; el MSIX declara `adb` como alias
+  de ejecución, que es como la Store pone ejecutables en el PATH.
+
 ## 2026.9.16.0 — adb se encuentra, se descarga o se señala; aviso de Xiaomi
 
 - **Sin adb no se queda parada**: si no lo encuentra, el aviso trae dos botones, descargar las

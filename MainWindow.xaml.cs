@@ -65,6 +65,10 @@ public partial class MainWindow : Window
         {
             MirrorArea.Focus();
             await EnsureAdbAsync();
+            AppLog.Write($"adb: {_adb.ExecutablePath ?? "(no)"}{(BundledAdb.IsPackaged ? " · MSIX" : "")}");
+            // adb va dentro del paquete: que valga tambien desde una consola (PATH del usuario).
+            if (BundledAdb.EnsureOnUserPath())
+                SetStatus(Loc.Format("AdbOnPath", BundledAdb.Folder));
             await RefreshDevicesAsync();
             _deviceTimer.Start();
 

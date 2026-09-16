@@ -109,6 +109,9 @@ public sealed class AdbService
         if (Environment.GetEnvironmentVariable("ADB") is { Length: > 0 } fromEnv)
             candidates.Add(fromEnv);
 
+        // El que va dentro del paquete (Assets\platform-tools): es el que se prueba y el que se
+        // conoce, asi que va antes que cualquier otro del equipo.
+        candidates.Add(BundledAdb.ExecutablePath);
         candidates.Add(Path.Combine(AppContext.BaseDirectory, "adb.exe"));
         candidates.Add(Path.Combine(AppContext.BaseDirectory, "platform-tools", "adb.exe"));
 

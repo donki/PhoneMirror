@@ -25,8 +25,10 @@ dotnet run --project PhoneMirror.csproj
 
 Hace falta:
 
-- **adb.exe** (Android platform-tools, de Google; no van dentro). Se busca en la ruta elegida con
-  «Buscar adb.exe…», la variable `ADB`, junto al ejecutable, `ANDROID_HOME` / `ANDROID_SDK_ROOT`,
+- **adb.exe** (Android platform-tools, de Google) **va dentro**: `Assets\platform-tools`, junto al
+  ejecutable (Apache 2.0; ver `THIRD-PARTY-NOTICES.md`). Al arrancar, la versión portable añade esa
+  carpeta al PATH del usuario si no hay otro adb; el MSIX expone `adb` como alias de ejecución.
+  Si faltara, se busca en la ruta elegida con «Buscar adb.exe…», la variable `ADB`, `ANDROID_HOME` / `ANDROID_SDK_ROOT`,
   los SDK habituales (`Program Files\Android`, `%LOCALAPPDATA%\Android\Sdk`, `C:\Android`…), el
   `PATH` y carpetas `platform-tools` sueltas (raíz de las unidades, Descargas, Escritorio,
   Documentos). Si no está, se descarga de `dl.google.com` a `%LOCALAPPDATA%\sOCPhoneMirror`.

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <!--
     Manifiesto del paquete MSIX de sOC Phone Mirror para la Microsoft Store.
@@ -24,7 +24,9 @@
     xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
     xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
     xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-    IgnorableNamespaces="uap rescap">
+    xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+    xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+    IgnorableNamespaces="uap uap3 desktop rescap">
 
   <Identity
       Name="@@IDENTITY_NAME@@"
@@ -63,6 +65,29 @@
             Square71x71Logo="Images\SmallTile.png" />
         <uap:SplashScreen Image="Images\Square310x310Logo.png" />
       </uap:VisualElements>
+    </Application>
+
+    <!--
+      adb va dentro del paquete y se expone como alias de ejecucion: la Store pone
+      %LOCALAPPDATA%\Microsoft\WindowsApps en el PATH del usuario, y ahi aparece adb.exe apuntando
+      al del paquete. Es la forma de «poner adb en el PATH» en un MSIX, donde el registro esta
+      virtualizado y tocar HKCU\Environment no llegaria a nada. Sin entrada en Inicio (AppListEntry).
+    -->
+    <Application Id="Adb" Executable="Assets\platform-tools\adb.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+          DisplayName="adb (sOC Phone Mirror)"
+          Description="Android Debug Bridge, incluido con sOC Phone Mirror."
+          BackgroundColor="transparent"
+          AppListEntry="none"
+          Square150x150Logo="Images\Square150x150Logo.png"
+          Square44x44Logo="Images\Square44x44Logo.png" />
+      <Extensions>
+        <uap3:Extension Category="windows.appExecutionAlias" Executable="Assets\platform-tools\adb.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap3:AppExecutionAlias>
+            <desktop:ExecutionAlias Alias="adb.exe" />
+          </uap3:AppExecutionAlias>
+        </uap3:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

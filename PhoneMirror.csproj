@@ -13,9 +13,9 @@
     <RootNamespace>PhoneMirror</RootNamespace>
     <AssemblyName>sOCPhoneMirror</AssemblyName>
     <ApplicationTitle>sOC Phone Mirror</ApplicationTitle>
-    <Version>2026.9.16.0</Version>
-    <AssemblyVersion>2026.9.16.0</AssemblyVersion>
-    <FileVersion>2026.9.16.0</FileVersion>
+    <Version>2026.9.16.1</Version>
+    <AssemblyVersion>2026.9.16.1</AssemblyVersion>
+    <FileVersion>2026.9.16.1</FileVersion>
     <Product>sOC Phone Mirror</Product>
     <Company>Socratic</Company>
     <Copyright>Copyright © 2026 Socratic</Copyright>
@@ -43,6 +43,16 @@
     -->
     <None Include="Assets\scrcpy-server">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!--
+      adb y sus DLL (platform-tools de Google, Apache 2.0 en AOSP) van tambien al lado del
+      ejecutable, en Assets\platform-tools; los deja ahi tools\get-platform-tools.ps1 (no van al
+      repositorio). Con ellos el paquete ya no depende de que haya un adb en el equipo.
+    -->
+    <None Include="Assets\platform-tools\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- Con PublishSingleFile, los .exe y .dll se intentan meter en el bundle y se pierden: sueltos. -->
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
 
