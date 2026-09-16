@@ -25,10 +25,14 @@ dotnet run --project PhoneMirror.csproj
 
 Hace falta:
 
-- **adb.exe** (Android platform-tools). Se busca en la variable `ADB`, junto al ejecutable, en
-  `ANDROID_HOME` / `ANDROID_SDK_ROOT`, en `C:\Program Files (x86)\Android\android-sdk` y en el
-  `PATH`.
-- El móvil por USB con **depuración USB** activada y el PC aceptado en el móvil.
+- **adb.exe** (Android platform-tools, de Google; no van dentro). Se busca en la ruta elegida con
+  «Buscar adb.exe…», la variable `ADB`, junto al ejecutable, `ANDROID_HOME` / `ANDROID_SDK_ROOT`,
+  los SDK habituales (`Program Files\Android`, `%LOCALAPPDATA%\Android\Sdk`, `C:\Android`…), el
+  `PATH` y carpetas `platform-tools` sueltas (raíz de las unidades, Descargas, Escritorio,
+  Documentos). Si no está, se descarga de `dl.google.com` a `%LOCALAPPDATA%\sOCPhoneMirror`.
+- El móvil por USB con **depuración USB** activada y el PC aceptado en el móvil. En **Xiaomi, Redmi
+  y POCO** (HyperOS/MIUI) hay que activar además **«Depuración USB (ajustes de seguridad)»** en las
+  opciones de desarrollador: sin eso la pantalla se ve pero el ratón y el teclado no la controlan.
 - `Assets\scrcpy-server` (va en el repositorio; `tools\get-scrcpy-server.ps1` lo vuelve a bajar y
   comprueba el SHA-256).
 
