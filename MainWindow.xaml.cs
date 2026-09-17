@@ -314,6 +314,21 @@ public partial class MainWindow : Window
         Activate();
     }
 
+    /// <summary>
+    /// Titulo = aplicacion · modelo · numero de serie del movil elegido (o conectado), o «sin movil».
+    /// Lo lee la lista de instancias de las otras Phone Mirror y la barra de tareas.
+    /// </summary>
+    private void UpdateTitle(string? deviceName = null)
+    {
+        var device = DeviceBox.SelectedItem as AdbDevice;
+        var who = device is null ? Loc.Get("TitleNoPhone")
+            : deviceName is { Length: > 0 } ? $"{deviceName} · {device.Serial}"
+            : device.Caption;
+        Title = $"{Loc.Get("AppTitle")} · {who}";
+        if (_session is not null || device is not null)
+            _tray?.SetText(Title);
+    }
+
     private bool _hintShown;
 
     /// <summary>
@@ -375,6 +390,7 @@ public partial class MainWindow : Window
 
         ConnectButton.IsEnabled = DeviceBox.SelectedItem is AdbDevice { IsReady: true };
         UpdatePlaceholder();
+        UpdateTitle();
 
         if (AutoConnect && _session is null && ConnectButton.IsEnabled && !_autoConnected)
         {
@@ -489,8 +505,7 @@ public partial class MainWindow : Window
         {
             SetStatus(Loc.Format("Connected", session.DeviceName, w, h));
             // El movil en el titulo: es lo que ve la lista de instancias y la barra de tareas.
-            Title = $"{Loc.Get("AppTitle")} · {(session.DeviceName.Length > 0 ? session.DeviceName : device.Caption)}";
-            _tray?.SetText(Title);
+            UpdateTitle(session.DeviceName);
             FitWindowToVideo(w, h);
         });
         session.Ended += reason => Dispatcher.BeginInvoke(async () =>
@@ -559,7 +574,7 @@ public partial class MainWindow : Window
         SetSessionButtons(false);
         ConnectButton.IsEnabled = DeviceBox.SelectedItem is AdbDevice { IsReady: true };
         SetStatus(Loc.Get("Disconnected"));
-        Title = Loc.Get("AppTitle");
+        UpdateTitle();
         UpdatePlaceholder();
     }
 

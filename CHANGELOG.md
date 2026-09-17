@@ -1,5 +1,11 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.17.1 — Corregido el selector de instancias
+
+- «Ventana nueva» no abría nada: al cerrarse el diálogo, Windows daba la aplicación por terminada
+  antes de abrir la ventana. Y la lista identifica cada ventana con el modelo y el número de serie
+  del móvil elegido (o «sin móvil»), también antes de conectar.
+
 ## 2026.9.17.0 — Si ya hay una abierta, pregunta; globo al esconderse; scrcpy-server suelto
 
 - **Al arrancar con otra Phone Mirror abierta** (a la vista o en la bandeja) pregunta: enseñar una

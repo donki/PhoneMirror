@@ -25,6 +25,9 @@ public partial class App : Application
             var others = Instances.Others();
             if (others.Count > 0)
             {
+                // Mientras el dialogo es la unica ventana, cerrarlo no debe apagar la aplicacion
+                // (con el ShutdownMode por defecto, «Ventana nueva» se cerraba sin abrir nada).
+                ShutdownMode = ShutdownMode.OnExplicitShutdown;
                 var chooser = new InstancesWindow(others);
                 if (chooser.ShowDialog() != true)
                 {
@@ -55,6 +58,7 @@ public partial class App : Application
         }
         else
         {
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
             MainWindow.Show();
         }
     }
