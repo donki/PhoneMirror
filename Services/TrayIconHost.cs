@@ -1,4 +1,4 @@
-using System.Drawing;
+﻿using System.Drawing;
 using WinForms = System.Windows.Forms;
 
 namespace PhoneMirror.Services;
@@ -42,6 +42,9 @@ public sealed class TrayIconHost : IDisposable
     public event EventHandler? QuitRequested;
 
     public void SetText(string text) => _icon.Text = text.Length > 63 ? text[..63] : text;
+
+    /// <summary>Un globo desde el icono (Windows lo enseña aunque el icono este en el desbordamiento).</summary>
+    public void Balloon(string title, string text) => _icon.ShowBalloonTip(4000, title, text, WinForms.ToolTipIcon.None);
 
     public void Dispose()
     {

@@ -83,7 +83,22 @@ public partial class MainWindow : Window
         StateChanged += (_, _) =>
         {
             if (WindowState == WindowState.Minimized && _tray is not null && !_quitting)
-                Hide();
+                HideToTray();
+        };
+
+        // Otra instancia recien arrancada pide que esta se enseñe (Instances.Show).
+        SourceInitialized += (_, _) =>
+        {
+            if (PresentationSource.FromVisual(this) is System.Windows.Interop.HwndSource source)
+                source.AddHook((IntPtr _, int msg, IntPtr _, IntPtr _, ref bool handled) =>
+                {
+                    if (msg == (int)Instances.ShowMessage)
+                    {
+                        Dispatcher.BeginInvoke(ShowFromTray);
+                        handled = true;
+                    }
+                    return IntPtr.Zero;
+                });
         };
         Closing += async (_, e) =>
         {
@@ -93,7 +108,7 @@ public partial class MainWindow : Window
             {
                 e.Cancel = true;
                 await DisconnectAsync();
-                Hide();
+                HideToTray();
                 return;
             }
 
@@ -299,6 +314,22 @@ public partial class MainWindow : Window
         Activate();
     }
 
+    private bool _hintShown;
+
+    /// <summary>
+    /// Esconde la ventana en la bandeja. La primera vez, un globo desde el icono: Windows 11 mete
+    /// los iconos nuevos en el desbordamiento (^) y si no, parece que la aplicacion se ha cerrado.
+    /// </summary>
+    private void HideToTray()
+    {
+        Hide();
+        if (!_hintShown)
+        {
+            _hintShown = true;
+            _tray?.Balloon(Loc.Get("AppTitle"), Loc.Get("TrayHidden"));
+        }
+    }
+
     private void OnOpenOnConnectChanged(object sender, RoutedEventArgs e)
     {
         if (_loadingToggles)
@@ -457,6 +488,9 @@ public partial class MainWindow : Window
         session.VideoSizeChanged += (w, h) => Dispatcher.BeginInvoke(() =>
         {
             SetStatus(Loc.Format("Connected", session.DeviceName, w, h));
+            // El movil en el titulo: es lo que ve la lista de instancias y la barra de tareas.
+            Title = $"{Loc.Get("AppTitle")} · {(session.DeviceName.Length > 0 ? session.DeviceName : device.Caption)}";
+            _tray?.SetText(Title);
             FitWindowToVideo(w, h);
         });
         session.Ended += reason => Dispatcher.BeginInvoke(async () =>
@@ -525,6 +559,7 @@ public partial class MainWindow : Window
         SetSessionButtons(false);
         ConnectButton.IsEnabled = DeviceBox.SelectedItem is AdbDevice { IsReady: true };
         SetStatus(Loc.Get("Disconnected"));
+        Title = Loc.Get("AppTitle");
         UpdatePlaceholder();
     }
 

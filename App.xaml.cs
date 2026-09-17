@@ -16,6 +16,29 @@ public partial class App : Application
         // «--tray»: arranca escondida en la bandeja y se enseña al enchufar un movil (OpenOnConnect).
         var serialIndex = Array.IndexOf(e.Args, "--serial");
         var tray = e.Args.Contains(OpenOnConnect.TrayArgument);
+
+        // Ya hay otra Phone Mirror abierta (a la vista o en la bandeja): ¿enseñar una de ellas o
+        // abrir otra? Solo cuando arranca el usuario a mano; con --tray/--connect/--serial (accesos
+        // directos y arranque con Windows) no se pregunta.
+        if (!tray && serialIndex < 0 && !e.Args.Contains("--connect") && !e.Args.Contains("--new"))
+        {
+            var others = Instances.Others();
+            if (others.Count > 0)
+            {
+                var chooser = new InstancesWindow(others);
+                if (chooser.ShowDialog() != true)
+                {
+                    Shutdown();
+                    return;
+                }
+                if (chooser.Chosen is { } chosen)
+                {
+                    Instances.Show(chosen);
+                    Shutdown();
+                    return;
+                }
+            }
+        }
         MainWindow = new MainWindow
         {
             AutoConnect = e.Args.Contains("--connect") || serialIndex >= 0,

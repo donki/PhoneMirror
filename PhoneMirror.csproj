@@ -13,9 +13,9 @@
     <RootNamespace>PhoneMirror</RootNamespace>
     <AssemblyName>sOCPhoneMirror</AssemblyName>
     <ApplicationTitle>sOC Phone Mirror</ApplicationTitle>
-    <Version>2026.9.16.1</Version>
-    <AssemblyVersion>2026.9.16.1</AssemblyVersion>
-    <FileVersion>2026.9.16.1</FileVersion>
+    <Version>2026.9.17.0</Version>
+    <AssemblyVersion>2026.9.17.0</AssemblyVersion>
+    <FileVersion>2026.9.17.0</FileVersion>
     <Product>sOC Phone Mirror</Product>
     <Company>Socratic</Company>
     <Copyright>Copyright © 2026 Socratic</Copyright>
@@ -43,6 +43,8 @@
     -->
     <None Include="Assets\scrcpy-server">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- Con PublishSingleFile se metia dentro del exe y la aplicacion no lo encontraba en Assets. -->
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
     <!--
       adb y sus DLL (platform-tools de Google, Apache 2.0 en AOSP) van tambien al lado del

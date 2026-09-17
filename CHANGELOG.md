@@ -1,5 +1,17 @@
 # Changelog — sOC Phone Mirror
 
+## 2026.9.17.0 — Si ya hay una abierta, pregunta; globo al esconderse; scrcpy-server suelto
+
+- **Al arrancar con otra Phone Mirror abierta** (a la vista o en la bandeja) pregunta: enseñar una
+  de las que hay (lista, con el móvil de cada una en el título) o abrir una ventana nueva. Con
+  `--tray`, `--connect`, `--serial` o `--new` no pregunta.
+- La primera vez que se esconde en la bandeja sale un **globo** desde el icono: Windows 11 mete los
+  iconos nuevos en el desbordamiento (^) y parecía que la aplicación se había cerrado. El menú del
+  icono sigue con Abrir y Salir.
+- El título de la ventana lleva el móvil conectado.
+- Corregido: con el exe único, `scrcpy-server` se metía dentro del exe y no quedaba en `Assets`;
+  ahora va suelto junto al exe (como adb).
+
 ## 2026.9.16.1 — adb va dentro del paquete
 
 - **adb, sus dos DLL y su NOTICE van dentro** (`Assets\platform-tools`, platform-tools r37.0.1,
