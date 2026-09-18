@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
@@ -21,7 +21,7 @@ namespace PhoneMirror.Services;
 /// </remarks>
 public static class BundledAdb
 {
-    public static string Folder => Path.Combine(AppContext.BaseDirectory, "Assets", "platform-tools");
+    public static string Folder => Path.Combine(BundledAssets.Root, "platform-tools");
 
     public static string ExecutablePath => Path.Combine(Folder, "adb.exe");
 

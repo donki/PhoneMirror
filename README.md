@@ -1,4 +1,4 @@
-# sOC Phone Mirror
+﻿# sOC Phone Mirror
 
 Ver y manejar el móvil Android conectado por cable desde una ventana de Windows.
 
@@ -25,9 +25,12 @@ dotnet run --project PhoneMirror.csproj
 
 Hace falta:
 
-- **adb.exe** (Android platform-tools, de Google) **va dentro**: `Assets\platform-tools`, junto al
-  ejecutable (Apache 2.0; ver `THIRD-PARTY-NOTICES.md`). Al arrancar, la versión portable añade esa
-  carpeta al PATH del usuario si no hay otro adb; el MSIX expone `adb` como alias de ejecución.
+- **adb.exe** (Android platform-tools, de Google) y **scrcpy-server** **van dentro del ejecutable**
+  (Apache 2.0; ver `THIRD-PARTY-NOTICES.md`). Al arrancar, si no existe la carpeta `Assets` junto al
+  exe, o le falta algo, o lo que hay es de otra versión (tamaño o SHA-256 distintos), la crea y copia
+  o actualiza los ficheros; si ahí no se puede escribir (MSIX, Archivos de programa) los deja en
+  `%LOCALAPPDATA%\sOCPhoneMirror\Assets`. Basta con el exe suelto. La versión portable añade la
+  carpeta de adb al PATH del usuario si no hay otro adb; el MSIX expone `adb` como alias de ejecución.
   Si faltara, se busca en la ruta elegida con «Buscar adb.exe…», la variable `ADB`, `ANDROID_HOME` / `ANDROID_SDK_ROOT`,
   los SDK habituales (`Program Files\Android`, `%LOCALAPPDATA%\Android\Sdk`, `C:\Android`…), el
   `PATH` y carpetas `platform-tools` sueltas (raíz de las unidades, Descargas, Escritorio,
@@ -35,8 +38,8 @@ Hace falta:
 - El móvil por USB con **depuración USB** activada y el PC aceptado en el móvil. En **Xiaomi, Redmi
   y POCO** (HyperOS/MIUI) hay que activar además **«Depuración USB (ajustes de seguridad)»** en las
   opciones de desarrollador: sin eso la pantalla se ve pero el ratón y el teclado no la controlan.
-- `Assets\scrcpy-server` (va en el repositorio; `tools\get-scrcpy-server.ps1` lo vuelve a bajar y
-  comprueba el SHA-256).
+- `Assets\scrcpy-server` en el repositorio (`tools\get-scrcpy-server.ps1` lo vuelve a bajar y
+  comprueba el SHA-256); al compilar se embebe en el exe.
 
 Opciones: `--connect` conecta solo con el primer móvil listo; `--serial <serie>` conecta con ese
 móvil (una ventana por móvil: se puede abrir una para el teléfono y otra para la tablet).

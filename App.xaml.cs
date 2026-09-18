@@ -11,6 +11,10 @@ public partial class App : Application
 
         ThemeManager.Apply();
 
+        // adb y scrcpy-server van dentro del exe: la carpeta Assets se crea o se pone al dia aqui,
+        // antes de que nadie los busque.
+        BundledAssets.Ensure();
+
         // «--connect»: conecta solo con el primer movil que haya, sin pulsar nada.
         // «--serial XXXX»: con ese movil en concreto (una ventana por movil).
         // «--tray»: arranca escondida en la bandeja y se enseña al enchufar un movil (OpenOnConnect).

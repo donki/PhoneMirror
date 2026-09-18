@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -92,7 +92,7 @@ public sealed class ScrcpySession : IAsyncDisposable
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
-        var serverPath = Path.Combine(AppContext.BaseDirectory, "Assets", "scrcpy-server");
+        var serverPath = Path.Combine(BundledAssets.Root, "scrcpy-server");
         if (!File.Exists(serverPath))
             throw new FileNotFoundException("Falta el servidor de scrcpy junto al ejecutable.", serverPath);
 

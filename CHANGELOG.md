@@ -1,4 +1,12 @@
-# Changelog — sOC Phone Mirror
+﻿# Changelog — sOC Phone Mirror
+
+## 2026.9.18.0 — El exe se basta solo: adb y scrcpy-server van dentro
+
+- **adb, sus DLL y scrcpy-server van dentro del ejecutable.** Al arrancar, si no existe la carpeta
+  `Assets` junto al exe, o le falta algo, o lo que hay es de otra versión (tamaño o SHA-256
+  distintos), la crea y copia o actualiza los ficheros. Si ahí no se puede escribir (instalado desde
+  el MSIX o en Archivos de programa) los deja en `%LOCALAPPDATA%\sOCPhoneMirror\Assets`. Ya no hace
+  falta copiar `Assets` a mano junto al exe: basta con el exe.
 
 ## 2026.9.17.1 — Corregido el selector de instancias
 
