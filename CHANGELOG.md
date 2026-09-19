@@ -1,5 +1,9 @@
 ﻿# Changelog — sOC Phone Mirror
 
+## 2026.9.19.0 — Aviso de la bandeja sin el «(^)»
+
+- El globo que sale al esconderse en el área de iconos decía «(^)»; ya no.
+
 ## 2026.9.18.0 — El exe se basta solo: adb y scrcpy-server van dentro
 
 - **adb, sus DLL y scrcpy-server van dentro del ejecutable.** Al arrancar, si no existe la carpeta
