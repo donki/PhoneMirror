@@ -65,22 +65,14 @@
             Square71x71Logo="Images\SmallTile.png" />
         <uap:SplashScreen Image="Images\Square310x310Logo.png" />
       </uap:VisualElements>
-    </Application>
-
-    <!--
-      adb va dentro del paquete y se expone como alias de ejecucion: la Store pone
-      %LOCALAPPDATA%\Microsoft\WindowsApps en el PATH del usuario, y ahi aparece adb.exe apuntando
-      al del paquete. Es la forma de «poner adb en el PATH» en un MSIX, donde el registro esta
-      virtualizado y tocar HKCU\Environment no llegaria a nada. Sin entrada en Inicio (AppListEntry).
-    -->
-    <Application Id="Adb" Executable="Assets\platform-tools\adb.exe" EntryPoint="Windows.FullTrustApplication">
-      <uap:VisualElements
-          DisplayName="adb (sOC Phone Mirror)"
-          Description="Android Debug Bridge, incluido con sOC Phone Mirror."
-          BackgroundColor="transparent"
-          AppListEntry="none"
-          Square150x150Logo="Images\Square150x150Logo.png"
-          Square44x44Logo="Images\Square44x44Logo.png" />
+      <!--
+        adb va dentro del paquete y se expone como alias de ejecucion de ESTA aplicacion: la Store
+        pone %LOCALAPPDATA%\Microsoft\WindowsApps en el PATH del usuario, y ahi aparece adb.exe
+        apuntando al del paquete. Es la forma de «poner adb en el PATH» en un MSIX, donde el
+        registro esta virtualizado. Antes iba como una segunda <Application> sin entrada en Inicio
+        (AppListEntry="none") y la Store lo rechazo: eso es una «aplicacion desatendida» y exige un
+        permiso especial (HeadlessAppBypass). El alias colgado de la aplicacion principal no lo necesita.
+      -->
       <Extensions>
         <uap3:Extension Category="windows.appExecutionAlias" Executable="Assets\platform-tools\adb.exe" EntryPoint="Windows.FullTrustApplication">
           <uap3:AppExecutionAlias>

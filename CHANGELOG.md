@@ -1,5 +1,12 @@
 ﻿# Changelog — sOC Phone Mirror
 
+## 2026.9.21.0 — MSIX aceptable por la Store: adb como alias de la aplicación principal
+
+- Partner Center rechazaba el paquete: el alias `adb.exe` iba como una segunda aplicación sin
+  entrada en Inicio (`AppListEntry="none"`), que la Store considera «aplicación desatendida» y
+  exige un permiso especial (HeadlessAppBypass). Ahora el alias de ejecución cuelga de la
+  aplicación principal: mismo `adb` en el PATH, sin segunda aplicación. Sin cambios en el exe.
+
 ## 2026.9.19.0 — Aviso de la bandeja sin el «(^)»
 
 - El globo que sale al esconderse en el área de iconos decía «(^)»; ya no.
