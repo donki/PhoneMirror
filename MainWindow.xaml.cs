@@ -223,6 +223,9 @@ public partial class MainWindow : Window
         AppLog.Write(text);
     }
 
+    /// <summary>Un error que no se esperaba (App lo recoge): se dice en la barra de estado y se sigue.</summary>
+    public void ShowError(string message) => SetStatus(Loc.Format("UnexpectedError", message));
+
     private void SetSessionButtons(bool connected)
     {
         ConnectButton.Visibility = connected ? Visibility.Collapsed : Visibility.Visible;

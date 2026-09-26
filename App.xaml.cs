@@ -9,6 +9,22 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Un error que no se esperaba no puede cerrar la aplicacion: se apunta en el log y se avisa
+        // en la barra de estado. La Store la rechazo el 2026-09-25 por cerrarse al arrancar.
+        DispatcherUnhandledException += (_, ex) =>
+        {
+            AppLog.Write($"error no controlado: {ex.Exception}");
+            (MainWindow as MainWindow)?.ShowError(ex.Exception.Message);
+            ex.Handled = true;
+        };
+        TaskScheduler.UnobservedTaskException += (_, ex) =>
+        {
+            AppLog.Write($"error no controlado en tarea: {ex.Exception}");
+            ex.SetObserved();
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, ex) =>
+            AppLog.Write($"error fatal: {ex.ExceptionObject}");
+
         ThemeManager.Apply();
 
         // adb y scrcpy-server van dentro del exe: la carpeta Assets se crea o se pone al dia aqui,

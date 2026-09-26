@@ -12,9 +12,10 @@ namespace PhoneMirror.Services;
 /// solo, sin copiar nada a mano.
 /// </summary>
 /// <remarks>
-/// La carpeta es <c>Assets</c> junto al ejecutable si ahi se puede escribir. Si no (instalado
-/// desde el MSIX, en WindowsApps, o en Archivos de programa), se usa
-/// <c>%LOCALAPPDATA%\sOCPhoneMirror\Assets</c>. En los dos casos <see cref="Root"/> dice cual es.
+/// La carpeta es <c>Assets</c> junto al ejecutable si ahi se puede escribir. Si no (por ejemplo en
+/// Archivos de programa), se usa <c>%LOCALAPPDATA%\sOCPhoneMirror\Assets</c>. Instalada desde la
+/// Store (MSIX) no se copia nada: se usa la <c>Assets</c> que trae el paquete. En todos los casos
+/// <see cref="Root"/> dice cual es.
 /// Un fichero que no se pueda reemplazar (adb.exe en uso por un servidor adb de antes) se deja
 /// como esta y se apunta en el log; a la siguiente vez se vuelve a intentar.
 /// </remarks>
@@ -32,6 +33,19 @@ public static class BundledAssets
     public static void Ensure()
     {
         var updated = new List<string>();
+        // Instalada desde la Store (MSIX): el paquete ya trae Assets junto al exe, al dia y firmado, y
+        // es de ahi de donde hay que usarlo. Copiarlo a %LOCALAPPDATA% no vale: dentro del paquete esa
+        // carpeta esta virtualizada, y cuando adb se relanza a si mismo para arrancar su servidor lo
+        // hace por la ruta real, que fuera del contenedor no existe («CreateProcessW failed ... (3)»,
+        // «cannot connect to daemon»). Asi la rechazo la Store el 2026-09-25.
+        if (BundledAdb.IsPackaged)
+        {
+            Root = Path.Combine(AppContext.BaseDirectory, "Assets");
+            Updated = [];
+            if (!File.Exists(Path.Combine(Root, "platform-tools", "adb.exe")))
+                AppLog.Write($"assets: el paquete no trae adb en {Root}");
+            return;
+        }
         try
         {
             Root = PickRoot();

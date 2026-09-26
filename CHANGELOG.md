@@ -1,5 +1,17 @@
 ﻿# Changelog — sOC Phone Mirror
 
+## 2026.9.26.0 — Instalada desde la Store, adb funciona y la aplicación no se cierra
+
+- La Store la rechazó (10.1.2.10, «se cierra tras arrancar», Surface Laptop 4). Instalada desde el
+  MSIX, la carpeta del paquete es de solo lectura y la aplicación copiaba adb a
+  `%LOCALAPPDATA%\sOCPhoneMirror\Assets`. Dentro de un paquete esa carpeta está virtualizada, y
+  cuando adb se relanza a sí mismo para arrancar su servidor lo hace por la ruta real, que no existe:
+  «CreateProcessW failed … (3)», «cannot connect to daemon», y adb no llegaba a funcionar nunca.
+  Ahora, dentro del paquete, se usa directamente la carpeta `Assets` que trae el MSIX y no se copia
+  nada. La versión portable sigue igual.
+- Un error que no se esperaba ya no cierra la aplicación: se apunta en el registro y se avisa en la
+  barra de estado («Algo ha fallado, pero la aplicación sigue abierta…»).
+
 ## 2026.9.21.0 — MSIX aceptable por la Store: adb como alias de la aplicación principal
 
 - Partner Center rechazaba el paquete: el alias `adb.exe` iba como una segunda aplicación sin
