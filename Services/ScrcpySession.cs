@@ -94,7 +94,7 @@ public sealed class ScrcpySession : IAsyncDisposable
     {
         var serverPath = Path.Combine(BundledAssets.Root, "scrcpy-server");
         if (!File.Exists(serverPath))
-            throw new FileNotFoundException("Falta el servidor de scrcpy junto al ejecutable.", serverPath);
+            throw new FileNotFoundException("Falta el servidor de réplica de pantalla junto al ejecutable.", serverPath);
 
         await _adb.PushAsync(_serial, serverPath, RemoteServerPath, cancellationToken).ConfigureAwait(false);
         await _adb.ForwardAsync(_serial, _localPort, $"localabstract:scrcpy_{_scid:x8}", cancellationToken).ConfigureAwait(false);
@@ -142,7 +142,7 @@ public sealed class ScrcpySession : IAsyncDisposable
             cancellationToken.ThrowIfCancellationRequested();
 
             if (_server is { HasExited: true })
-                throw new InvalidOperationException("El servidor de scrcpy ha terminado antes de aceptar la conexion.");
+                throw new InvalidOperationException("El servidor de réplica de pantalla ha terminado antes de aceptar la conexion.");
 
             var client = new TcpClient { NoDelay = true };
             try
@@ -168,7 +168,7 @@ public sealed class ScrcpySession : IAsyncDisposable
             await Task.Delay(100, cancellationToken).ConfigureAwait(false);
         }
 
-        throw new TimeoutException("El servidor de scrcpy no ha contestado.", last);
+        throw new TimeoutException("El servidor de réplica de pantalla no ha contestado.", last);
     }
 
     private async Task VideoLoopAsync(NetworkStream video, CancellationToken cancellationToken)

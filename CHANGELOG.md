@@ -1,5 +1,11 @@
 ﻿# Changelog — sOC Phone Mirror
 
+## 2026.9.29.0 — Textos sin nombres de productos ajenos
+
+- El aviso de ficheros del paquete puestos al día dice «adb y el servidor de réplica de pantalla»
+  en vez del nombre del fichero del servidor, y lo mismo los mensajes de error cuando ese servidor
+  falta, se para o no contesta. La nota de licencias (Apache 2.0) sigue nombrándolo, como exige.
+
 ## 2026.9.26.0 — Instalada desde la Store, adb funciona y la aplicación no se cierra
 
 - La Store la rechazó (10.1.2.10, «se cierra tras arrancar», Surface Laptop 4). Instalada desde el
