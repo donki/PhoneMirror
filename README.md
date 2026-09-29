@@ -14,7 +14,7 @@ Ver y manejar el móvil Android conectado por cable desde una ventana de Windows
 
 ## Dónde conseguirla
 
-- **Microsoft Store:** https://apps.microsoft.com/search?query=%22sOC+Phone+Mirror%22 (enlace directo al producto en cuanto Partner Center dé el identificador)
+- **Microsoft Store:** https://apps.microsoft.com/detail/9N0S24Z4DLS1
 - **Releases de GitHub** (APK / EXE / MSIX de cada versión): https://github.com/donki/PhoneMirror/releases
 
 ## Ejecutar
