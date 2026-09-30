@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- La logica probada esta enlazada dentro del ensamblado de pruebas: hay que instrumentarlo, sin
+     contar las propias pruebas ni el adb de mentira. -->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <IncludeTestAssembly>true</IncludeTestAssembly>
+          <Include>[PhoneMirror.Tests]PhoneMirror.Services.*,[PhoneMirror.Tests]PhoneMirror.Localization.*</Include>
+          <Exclude>[FakeAdb]*</Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

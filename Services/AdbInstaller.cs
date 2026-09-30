@@ -38,7 +38,14 @@ public static class AdbInstaller
 
         var bytes = await http.GetByteArrayAsync(DownloadUrl, cancellationToken).ConfigureAwait(false);
 
-        Directory.CreateDirectory(Folder);
+        Extract(bytes, Folder);
+        return ExecutablePath;
+    }
+
+    /// <summary>Saca del zip de platform-tools los ficheros que adb necesita, a <paramref name="folder"/>.</summary>
+    internal static void Extract(byte[] bytes, string folder)
+    {
+        Directory.CreateDirectory(folder);
         using var zip = new ZipArchive(new MemoryStream(bytes), ZipArchiveMode.Read);
         var found = 0;
         foreach (var entry in zip.Entries)
@@ -48,14 +55,12 @@ public static class AdbInstaller
                 continue;
 
             // Un adb que estuviera corriendo tiene el .exe bloqueado: se le pide que pare antes.
-            var target = Path.Combine(Folder, name);
+            var target = Path.Combine(folder, name);
             entry.ExtractToFile(target, overwrite: true);
             found++;
         }
 
         if (found < Needed.Length)
             throw new InvalidOperationException($"El zip de platform-tools no trae adb completo ({found}/{Needed.Length}).");
-
-        return ExecutablePath;
     }
 }

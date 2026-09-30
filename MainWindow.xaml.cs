@@ -597,31 +597,14 @@ public partial class MainWindow : Window
         if (videoWidth <= 0 || videoHeight <= 0 || WindowState != WindowState.Normal)
             return;
 
-        var chromeWidth = Math.Max(0, ActualWidth - MirrorArea.ActualWidth);
-        var chromeHeight = Math.Max(0, ActualHeight - MirrorArea.ActualHeight);
+        var bounds = VideoGeometry.FitWindow(videoWidth, videoHeight,
+            new Size(ActualWidth, ActualHeight), new Size(MirrorArea.ActualWidth, MirrorArea.ActualHeight),
+            new Size(MinWidth, MinHeight), new Point(Left, Top), SystemParameters.WorkArea);
 
-        var work = SystemParameters.WorkArea;
-        var maxMirrorWidth = work.Width - chromeWidth - 24;
-        var maxMirrorHeight = work.Height - chromeHeight - 24;
-
-        // Misma superficie que ahora (o un tamaño razonable la primera vez), con el formato nuevo.
-        var area = Math.Max(MirrorArea.ActualWidth * MirrorArea.ActualHeight, 480.0 * 800.0);
-        var ratio = (double)videoWidth / videoHeight;
-        var mirrorWidth = Math.Sqrt(area * ratio);
-        var mirrorHeight = mirrorWidth / ratio;
-
-        var scale = Math.Min(1.0, Math.Min(maxMirrorWidth / mirrorWidth, maxMirrorHeight / mirrorHeight));
-        mirrorWidth *= scale;
-        mirrorHeight *= scale;
-
-        var newWidth = Math.Max(MinWidth, mirrorWidth + chromeWidth);
-        var newHeight = Math.Max(MinHeight, mirrorHeight + chromeHeight);
-
-        // Que no se salga por la derecha o por abajo al crecer.
-        Left = Math.Max(work.Left, Math.Min(Left, work.Right - newWidth));
-        Top = Math.Max(work.Top, Math.Min(Top, work.Bottom - newHeight));
-        Width = newWidth;
-        Height = newHeight;
+        Left = bounds.Left;
+        Top = bounds.Top;
+        Width = bounds.Width;
+        Height = bounds.Height;
     }
 
     /// <summary>
@@ -671,25 +654,9 @@ public partial class MainWindow : Window
         if (_session is null || _bitmap is null)
             return null;
 
-        var videoWidth = _session.VideoWidth;
-        var videoHeight = _session.VideoHeight;
-        if (videoWidth == 0 || videoHeight == 0)
-            return null;
-
         // Stretch="Uniform": la imagen ocupa el mayor rectangulo proporcional centrado.
-        var scale = Math.Min(MirrorArea.ActualWidth / videoWidth, MirrorArea.ActualHeight / videoHeight);
-        var shownWidth = videoWidth * scale;
-        var shownHeight = videoHeight * scale;
-        var offsetX = (MirrorArea.ActualWidth - shownWidth) / 2;
-        var offsetY = (MirrorArea.ActualHeight - shownHeight) / 2;
-
-        var x = (point.X - offsetX) / scale;
-        var y = (point.Y - offsetY) / scale;
-
-        if (x < 0 || y < 0 || x >= videoWidth || y >= videoHeight)
-            return null;
-
-        return ((int)x, (int)y);
+        return VideoGeometry.ToVideo(MirrorArea.ActualWidth, MirrorArea.ActualHeight,
+            _session.VideoWidth, _session.VideoHeight, point.X, point.Y);
     }
 
     private async void OnMirrorMouseDown(object sender, MouseButtonEventArgs e)
@@ -769,14 +736,8 @@ public partial class MainWindow : Window
 
     private (int X, int Y) Clamp(Point point)
     {
-        var videoWidth = _session?.VideoWidth ?? 1;
-        var videoHeight = _session?.VideoHeight ?? 1;
-        var scale = Math.Min(MirrorArea.ActualWidth / videoWidth, MirrorArea.ActualHeight / videoHeight);
-        var offsetX = (MirrorArea.ActualWidth - videoWidth * scale) / 2;
-        var offsetY = (MirrorArea.ActualHeight - videoHeight * scale) / 2;
-        var x = Math.Clamp((point.X - offsetX) / scale, 0, videoWidth - 1);
-        var y = Math.Clamp((point.Y - offsetY) / scale, 0, videoHeight - 1);
-        return ((int)x, (int)y);
+        return VideoGeometry.Clamp(MirrorArea.ActualWidth, MirrorArea.ActualHeight,
+            _session?.VideoWidth ?? 1, _session?.VideoHeight ?? 1, point.X, point.Y);
     }
 
     // =====================================================================

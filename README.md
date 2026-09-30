@@ -58,6 +58,24 @@ móvil (una ventana por móvil: se puede abrir una para el teléfono y otra para
 | Arrastrar un `.apk` | Lo instala |
 | Arrastrar otro fichero | Lo copia a `/sdcard/Download` |
 
+## Pruebas
+
+`PhoneMirror.Tests` (xUnit) prueba la lógica sin móviles ni adb real: lectura de `adb devices -l`,
+`connect`/`pair`/argumentos contra un adb de mentira (`FakeAdb`), el protocolo de scrcpy (orden del
+servidor, cabeceras de video), el canal de control byte a byte por un socket de loopback, teclas,
+geometría del espejo, argumentos de arranque, direcciones Wi-Fi, assets empaquetados y textos es/en.
+
+- **178 pruebas**, todas pasan (2026-09-29). Tardan unos **3 s** (`dotnet test --no-build`, sin compilar).
+- Cobertura de lo instrumentado: **92,9 %** de líneas (728 de 783).
+- Cobertura sobre toda la aplicación: **32,8 %** (728 de 2219 líneas ejecutables; la interfaz WPF y
+  la descodificación con Media Foundation no se prueban).
+
+```
+dotnet test PhoneMirror.Tests/PhoneMirror.Tests.csproj
+dotnet test PhoneMirror.Tests/PhoneMirror.Tests.csproj --settings PhoneMirror.Tests/coverage.runsettings --collect:"XPlat Code Coverage"
+dotnet tool restore && dotnet reportgenerator -reports:"PhoneMirror.Tests/TestResults/*/coverage.cobertura.xml" -targetdir:cobertura -reporttypes:TextSummary
+```
+
 ## A qué accede
 
 - Al móvil, por adb: empuja `scrcpy-server` a `/data/local/tmp`, redirige un puerto local

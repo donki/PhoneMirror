@@ -87,7 +87,7 @@ public sealed class AdbService
     }
 
     /// <summary>Ruta de <c>adb.exe</c>, o <c>null</c> si no se encuentra.</summary>
-    public string? ExecutablePath { get; private set; }
+    public string? ExecutablePath { get; internal set; }
 
     /// <summary>Vuelve a buscar adb (despues de que <see cref="AdbInstaller"/> lo haya bajado).</summary>
     public void Relocate() => ExecutablePath = Locate();
@@ -138,6 +138,12 @@ public sealed class AdbService
     public async Task<IReadOnlyList<AdbDevice>> ListDevicesAsync(CancellationToken cancellationToken = default)
     {
         var output = await RunAsync(["devices", "-l"], cancellationToken).ConfigureAwait(false);
+        return ParseDevices(output);
+    }
+
+    /// <summary>Lee la salida de <c>adb devices -l</c>: serie, estado y, si lo dice, el modelo.</summary>
+    public static IReadOnlyList<AdbDevice> ParseDevices(string output)
+    {
         var devices = new List<AdbDevice>();
 
         foreach (var line in output.Split('\n'))
@@ -206,7 +212,7 @@ public sealed class AdbService
     public async Task<string> PairAsync(string address, string code, CancellationToken cancellationToken = default)
     {
         var output = (await RunAsync(["pair", address.Trim(), code.Trim()], cancellationToken).ConfigureAwait(false)).Trim();
-        if (!output.Contains("Successfully paired", StringComparison.OrdinalIgnoreCase))
+        if (!IsPaired(output))
             throw new InvalidOperationException(output.Length > 0 ? output : $"adb pair {address}");
 
         return output;
@@ -219,13 +225,17 @@ public sealed class AdbService
     public static bool IsNetworkSerial(string serial) =>
         serial.Contains(':') && serial.Split(':') is [var host, var port] && host.Contains('.') && int.TryParse(port, out _);
 
-    private static string WithPort(string address)
+    internal static string WithPort(string address)
     {
         var trimmed = address.Trim();
         return trimmed.Contains(':') ? trimmed : $"{trimmed}:5555";
     }
 
-    private static bool IsConnected(string output) =>
+    /// <summary><c>adb pair</c> sale con 0 aunque falle: solo «Successfully paired» es exito.</summary>
+    internal static bool IsPaired(string output) =>
+        output.Contains("Successfully paired", StringComparison.OrdinalIgnoreCase);
+
+    internal static bool IsConnected(string output) =>
         output.Contains("connected to", StringComparison.OrdinalIgnoreCase) &&
         !output.Contains("cannot connect", StringComparison.OrdinalIgnoreCase) &&
         !output.Contains("failed", StringComparison.OrdinalIgnoreCase);

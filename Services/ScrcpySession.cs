@@ -32,14 +32,10 @@ public sealed record VideoFrame(int Width, int Height, byte[] Pixels);
 /// </remarks>
 public sealed class ScrcpySession : IAsyncDisposable
 {
-    public const string ServerVersion = "4.1";
-    private const string RemoteServerPath = "/data/local/tmp/scrcpy-server.jar";
-    private const int DeviceNameLength = 64;
-    private const int HeaderSize = 12;
-
-    private const ulong PacketFlagConfig = 1UL << 62;
-    private const ulong PacketFlagKeyFrame = 1UL << 61;
-    private const ulong PacketPtsMask = PacketFlagKeyFrame - 1;
+    public const string ServerVersion = ScrcpyProtocol.ServerVersion;
+    private const string RemoteServerPath = ScrcpyProtocol.RemoteServerPath;
+    private const int DeviceNameLength = ScrcpyProtocol.DeviceNameLength;
+    private const int HeaderSize = ScrcpyProtocol.HeaderSize;
 
     private readonly AdbService _adb;
     private readonly string _serial;
@@ -97,13 +93,9 @@ public sealed class ScrcpySession : IAsyncDisposable
             throw new FileNotFoundException("Falta el servidor de réplica de pantalla junto al ejecutable.", serverPath);
 
         await _adb.PushAsync(_serial, serverPath, RemoteServerPath, cancellationToken).ConfigureAwait(false);
-        await _adb.ForwardAsync(_serial, _localPort, $"localabstract:scrcpy_{_scid:x8}", cancellationToken).ConfigureAwait(false);
+        await _adb.ForwardAsync(_serial, _localPort, ScrcpyProtocol.ForwardSocket(_scid), cancellationToken).ConfigureAwait(false);
 
-        var command = string.Join(' ',
-            $"CLASSPATH={RemoteServerPath}", "app_process", "/", "com.genymobile.scrcpy.Server", ServerVersion,
-            $"scid={_scid:x8}", "log_level=info", "audio=false", "tunnel_forward=true", "control=true",
-            $"max_size={MaxSize}", $"video_bit_rate={BitRate}", $"max_fps={MaxFps}",
-            "clipboard_autosync=true", "stay_awake=true", "cleanup=true");
+        var command = ScrcpyProtocol.ServerCommand(_scid, MaxSize, BitRate, MaxFps);
 
         _server = _adb.StartShell(_serial, command);
         _server.OutputDataReceived += (_, e) => { if (e.Data is not null) ServerOutput?.Invoke(e.Data); };
@@ -118,12 +110,12 @@ public sealed class ScrcpySession : IAsyncDisposable
 
         var name = new byte[DeviceNameLength];
         await ReadExactlyAsync(video, name, cancellationToken).ConfigureAwait(false);
-        DeviceName = Encoding.UTF8.GetString(name).TrimEnd('\0');
+        DeviceName = ScrcpyProtocol.DeviceName(name);
 
         var codec = new byte[4];
         await ReadExactlyAsync(video, codec, cancellationToken).ConfigureAwait(false);
-        var codecId = BinaryPrimitives.ReadUInt32BigEndian(codec);
-        if (codecId != 0x68323634) // "h264"
+        var codecId = ScrcpyProtocol.CodecId(codec);
+        if (codecId != ScrcpyProtocol.CodecH264)
             throw new InvalidOperationException($"Codec de video no admitido: 0x{codecId:X8}");
 
         Control = new ControlChannel(_controlSocket.GetStream());
@@ -188,17 +180,17 @@ public sealed class ScrcpySession : IAsyncDisposable
             {
                 await ReadExactlyAsync(video, header, cancellationToken).ConfigureAwait(false);
 
-                if ((header[0] & 0x80) != 0)
+                var parsed = ScrcpyProtocol.ReadHeader(header);
+                if (parsed.IsSession)
                 {
                     // Paquete de sesion: solo trae el tamaño nuevo del video.
-                    VideoWidth = BinaryPrimitives.ReadInt32BigEndian(header.AsSpan(4));
-                    VideoHeight = BinaryPrimitives.ReadInt32BigEndian(header.AsSpan(8));
+                    VideoWidth = parsed.Width;
+                    VideoHeight = parsed.Height;
                     VideoSizeChanged?.Invoke(VideoWidth, VideoHeight);
                     continue;
                 }
 
-                var ptsAndFlags = BinaryPrimitives.ReadUInt64BigEndian(header);
-                var length = BinaryPrimitives.ReadInt32BigEndian(header.AsSpan(8));
+                var length = parsed.Length;
                 if (length <= 0)
                     throw new IOException("Paquete de video con longitud invalida.");
 
@@ -207,14 +199,14 @@ public sealed class ScrcpySession : IAsyncDisposable
 
                 await ReadExactlyAsync(video, packet.AsMemory(0, length), cancellationToken).ConfigureAwait(false);
 
-                if ((ptsAndFlags & PacketFlagConfig) != 0)
+                if (parsed.IsConfig)
                 {
                     // SPS/PPS: se guardan para pegarlos delante del cuadro que viene.
                     pendingConfig = packet[..length];
                     continue;
                 }
 
-                var pts = (long)(ptsAndFlags & PacketPtsMask);
+                var pts = parsed.Pts;
                 ReadOnlySpan<byte> accessUnit;
                 if (pendingConfig is not null)
                 {

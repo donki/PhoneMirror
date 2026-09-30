@@ -10,7 +10,7 @@ public static class AppLog
 {
     private static readonly object Gate = new();
 
-    public static string Path { get; } = System.IO.Path.Combine(
+    public static string Path { get; internal set; } = System.IO.Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Socratic", "PhoneMirror", "log.txt");
 
     public static void Write(string line)

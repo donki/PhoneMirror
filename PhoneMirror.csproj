@@ -26,6 +26,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- El proyecto de pruebas vive dentro de esta carpeta: que no se compile con la aplicacion. -->
+    <Compile Remove="PhoneMirror.Tests\**" />
+    <None Remove="PhoneMirror.Tests\**" />
+    <Page Remove="PhoneMirror.Tests\**" />
+    <EmbeddedResource Remove="PhoneMirror.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Remove="System.Windows.Forms" />
     <Using Remove="System.Drawing" />
   </ItemGroup>

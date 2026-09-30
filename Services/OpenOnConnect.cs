@@ -17,7 +17,7 @@ namespace PhoneMirror.Services;
 /// </remarks>
 public static class OpenOnConnect
 {
-    public const string TrayArgument = "--tray";
+    public const string TrayArgument = LaunchArguments.TrayArgument;
 
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string ValueName = "sOCPhoneMirror";

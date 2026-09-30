@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Pruebas de la logica de sOC Phone Mirror. La aplicacion es un solo proyecto WPF con la
+    interfaz mezclada, asi que aqui se enlazan solo los ficheros puros (parseo de adb, protocolo
+    de scrcpy, canal de control, geometria, argumentos, textos). Nada lanza adb ni toca moviles:
+    las salidas de adb son cadenas de prueba y el canal de control va por un socket de loopback.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>PhoneMirror.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Services\AdbService.cs" Link="Linked\AdbService.cs" />
+    <Compile Include="..\Services\AdbInstaller.cs" Link="Linked\AdbInstaller.cs" />
+    <Compile Include="..\Services\BundledAdb.cs" Link="Linked\BundledAdb.cs" />
+    <Compile Include="..\Services\BundledAssets.cs" Link="Linked\BundledAssets.cs" />
+    <Compile Include="..\Services\AppLog.cs" Link="Linked\AppLog.cs" />
+    <Compile Include="..\Services\AndroidKeys.cs" Link="Linked\AndroidKeys.cs" />
+    <Compile Include="..\Services\ControlChannel.cs" Link="Linked\ControlChannel.cs" />
+    <Compile Include="..\Services\ScrcpyProtocol.cs" Link="Linked\ScrcpyProtocol.cs" />
+    <Compile Include="..\Services\VideoGeometry.cs" Link="Linked\VideoGeometry.cs" />
+    <Compile Include="..\Services\LaunchArguments.cs" Link="Linked\LaunchArguments.cs" />
+    <Compile Include="..\Services\WifiAddresses.cs" Link="Linked\WifiAddresses.cs" />
+    <Compile Include="..\Localization\Loc.cs" Link="Linked\Loc.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- El adb de mentira es otro proyecto (un exe): no se compila aqui, se copia al lado. -->
+    <Compile Remove="FakeAdb\**" />
+    <None Remove="FakeAdb\**" />
+    <ProjectReference Include="FakeAdb\FakeAdb.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Recursos con el prefijo Assets/ para probar BundledAssets.Ensure (los busca en el
+         ensamblado que se ejecuta, que en las pruebas es este). -->
+    <EmbeddedResource Include="TestAssets\hello.txt" LogicalName="Assets/test/hello.txt" />
+    <EmbeddedResource Include="TestAssets\blocked.txt" LogicalName="Assets/test/blocked.txt" />
+  </ItemGroup>
+
+</Project>

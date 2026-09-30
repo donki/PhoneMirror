@@ -34,13 +34,13 @@ public partial class App : Application
         // «--connect»: conecta solo con el primer movil que haya, sin pulsar nada.
         // «--serial XXXX»: con ese movil en concreto (una ventana por movil).
         // «--tray»: arranca escondida en la bandeja y se enseña al enchufar un movil (OpenOnConnect).
-        var serialIndex = Array.IndexOf(e.Args, "--serial");
-        var tray = e.Args.Contains(OpenOnConnect.TrayArgument);
+        var arguments = LaunchArguments.Parse(e.Args);
+        var tray = arguments.StartInTray;
 
         // Ya hay otra Phone Mirror abierta (a la vista o en la bandeja): ¿enseñar una de ellas o
         // abrir otra? Solo cuando arranca el usuario a mano; con --tray/--connect/--serial (accesos
         // directos y arranque con Windows) no se pregunta.
-        if (!tray && serialIndex < 0 && !e.Args.Contains("--connect") && !e.Args.Contains("--new"))
+        if (arguments.AskForInstances)
         {
             var others = Instances.Others();
             if (others.Count > 0)
@@ -64,8 +64,8 @@ public partial class App : Application
         }
         MainWindow = new MainWindow
         {
-            AutoConnect = e.Args.Contains("--connect") || serialIndex >= 0,
-            PreferredSerial = serialIndex >= 0 && serialIndex + 1 < e.Args.Length ? e.Args[serialIndex + 1] : null,
+            AutoConnect = arguments.AutoConnect,
+            PreferredSerial = arguments.PreferredSerial,
             StartInTray = tray,
         };
 
