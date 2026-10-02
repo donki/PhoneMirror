@@ -64,6 +64,12 @@ public static class BundledAdb
     /// Añade la carpeta del adb empaquetado al PATH del usuario si no hay ya ningun adb en el PATH.
     /// Devuelve true si lo ha añadido ahora.
     /// </summary>
+    /// <summary>Raiz del registro para HKCU\Environment (las pruebas, una rama suya).</summary>
+    internal static Func<RegistryKey> Root { get; set; } = () => Registry.CurrentUser;
+
+    /// <summary>Avisa a Windows de que ha cambiado el entorno (las pruebas lo cambian por nada).</summary>
+    internal static Action Broadcast { get; set; } = () => SendMessageTimeout(HwndBroadcast, WmSettingChange, IntPtr.Zero, "Environment", 0, 5000, out _);
+
     public static bool EnsureOnUserPath()
     {
         if (!IsPresent || IsPackaged)
@@ -71,7 +77,7 @@ public static class BundledAdb
 
         try
         {
-            using var key = Registry.CurrentUser.OpenSubKey("Environment", writable: true);
+            using var key = Root().OpenSubKey("Environment", writable: true);
             if (key is null)
                 return false;
 
@@ -89,7 +95,7 @@ public static class BundledAdb
             key.SetValue("Path", string.Join(';', entries), RegistryValueKind.ExpandString);
 
             // Que el Explorador y las consolas nuevas se enteren sin cerrar sesion.
-            SendMessageTimeout(HwndBroadcast, WmSettingChange, IntPtr.Zero, "Environment", 0, 5000, out _);
+            Broadcast();
             return true;
         }
         catch (Exception)

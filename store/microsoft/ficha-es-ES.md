@@ -50,9 +50,8 @@ Software libre bajo licencia MIT. En español y en inglés, con modo claro y osc
 ## Novedades de esta versión
 
 ```
-Si no hay adb en el PC, se descarga de Google o se puede señalar una copia. Aviso de la depuración
-USB (ajustes de seguridad) en Xiaomi. La aplicación vive en la bandeja y se conecta sola al
-enchufar el móvil. Conexión por Wi-Fi y botón de silencio.
+Ya no se abren dos sesiones con el mismo móvil si coinciden la búsqueda automática y un clic. Al
+tocar con el ratón, el móvil recibe primero el toque. Más pruebas automáticas (223).
 ```
 
 Nota del envío del 2026-09-15 (rechazado por 10.1.2.10 «adb no encontrado» y 10.2.4.1 «dependencia no

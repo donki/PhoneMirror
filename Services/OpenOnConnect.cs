@@ -22,24 +22,30 @@ public static class OpenOnConnect
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string ValueName = "sOCPhoneMirror";
 
+    /// <summary>Raiz del registro (HKCU; las pruebas, una rama suya).</summary>
+    internal static Func<RegistryKey> Root { get; set; } = () => Registry.CurrentUser;
+
+    /// <summary>El exe que se apunta en el arranque (las pruebas ponen otro).</summary>
+    internal static Func<string?> Executable { get; set; } = () => Environment.ProcessPath;
+
     public static bool IsEnabled
     {
         get
         {
-            using var key = Registry.CurrentUser.OpenSubKey(RunKey);
+            using var key = Root().OpenSubKey(RunKey);
             return key?.GetValue(ValueName) is string value && value.Contains(TrayArgument, StringComparison.Ordinal);
         }
     }
 
     public static void Set(bool enabled)
     {
-        using var key = Registry.CurrentUser.OpenSubKey(RunKey, writable: true);
+        using var key = Root().OpenSubKey(RunKey, writable: true);
         if (key is null)
             return;
 
         if (enabled)
         {
-            var executable = Environment.ProcessPath;
+            var executable = Executable();
             if (!string.IsNullOrEmpty(executable))
                 key.SetValue(ValueName, $"\"{executable}\" {TrayArgument}");
         }

@@ -26,6 +26,9 @@ public static class BundledAssets
     /// <summary>Carpeta de assets en uso. Hasta llamar a <see cref="Ensure"/>, la de al lado del exe.</summary>
     public static string Root { get; private set; } = Path.Combine(AppContext.BaseDirectory, "Assets");
 
+    /// <summary>De donde salen los recursos (el ejecutable; las pruebas ponen el suyo).</summary>
+    internal static Assembly Source { get; set; } = Assembly.GetExecutingAssembly();
+
     /// <summary>Ficheros copiados o actualizados en el ultimo <see cref="Ensure"/> (para el log).</summary>
     public static IReadOnlyList<string> Updated { get; private set; } = [];
 
@@ -49,7 +52,7 @@ public static class BundledAssets
         try
         {
             Root = PickRoot();
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = Source;
             foreach (var name in assembly.GetManifestResourceNames().Where(n => n.StartsWith(Prefix, StringComparison.Ordinal)))
             {
                 var relative = name[Prefix.Length..].Replace('/', Path.DirectorySeparatorChar);

@@ -57,6 +57,9 @@ public sealed class ScrcpySession : IAsyncDisposable
         _scid = Random.Shared.Next(1, int.MaxValue);
     }
 
+    /// <summary>Puerto local redirigido al servidor (las pruebas escuchan en el).</summary>
+    internal int LocalPort => _localPort;
+
     /// <summary>Nombre que dice el movil (64 bytes en el arranque del video).</summary>
     public string DeviceName { get; private set; } = string.Empty;
 

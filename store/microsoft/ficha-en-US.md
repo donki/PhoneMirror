@@ -45,7 +45,10 @@ Free software under the MIT licence. Spanish and English, light and dark mode.
 
 ## What's new in this version
 
-Leave **blank** on the first submission.
+```
+No more two sessions with the same phone when automatic polling and a click coincide. When you
+touch with the mouse, the phone gets the touch first. More automated tests (223).
+```
 
 ## Product features
 

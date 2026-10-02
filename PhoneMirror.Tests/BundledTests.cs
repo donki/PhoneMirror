@@ -16,6 +16,7 @@ public sealed class BundledTests : IDisposable
 
     public BundledTests()
     {
+        BundledAssets.Source = typeof(BundledTests).Assembly;   // los recursos de prueba (Assets/test/...)
         Directory.CreateDirectory(_dir);
         AppLog.Path = Path.Combine(_dir, "log.txt");
     }

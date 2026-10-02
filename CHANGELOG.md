@@ -1,5 +1,34 @@
 ﻿# Changelog — sOC Phone Mirror
 
+## 2026.10.3.0 — Pruebas de las ventanas y dos arreglos / Window tests and two fixes
+
+**Español**
+
+- **Ya no se abren dos sesiones con el mismo móvil.** Si el temporizador que busca móviles y un
+  clic (o el cambio de móvil) llegaban a la vez mientras la primera conexión aún arrancaba, salían
+  dos sesiones contra el mismo móvil. Ahora solo se conecta una vez.
+- **Al tocar con el ratón, el móvil recibe primero el «dedo abajo».** Capturar el ratón dispara un
+  movimiento y llegaba antes que el toque; ahora se manda el toque y después se captura.
+- Una ventana cerrada deja de buscar móviles (antes su temporizador seguía).
+- El banco de pruebas prueba ahora también las ventanas, la sesión de espejo (con un servidor de
+  réplica de mentira) y el descodificador H.264 de Windows con un vídeo hecho a mano:
+  **223 pruebas** y **93,3 %** de cobertura sobre toda la aplicación (antes 178 y 34,6 % con la
+  misma medida). Lo que la ventana pide al sistema (adb, bandeja, portapapeles, diálogos) pasa por
+  una pieza que en las pruebas se cambia por un doble.
+
+**English**
+
+- **No more two sessions with the same phone.** If the phone-polling timer and a click (or picking
+  another phone) arrived together while the first connection was still starting, two sessions were
+  opened. Now it connects only once.
+- **When you touch with the mouse, the phone gets the "finger down" first.** Capturing the mouse
+  fires a move that arrived before the touch; now the touch goes first and then the mouse is
+  captured.
+- A closed window stops looking for phones (its timer used to keep running).
+- The test suite now also covers the windows, the mirror session (against a fake mirroring server)
+  and the Windows H.264 decoder with a hand-made video: **223 tests** and **93.3 %** line coverage
+  of the whole app (was 178 and 34.6 % measured the same way).
+
 ## 2026.9.29.0 — Textos sin nombres de productos ajenos
 
 - El aviso de ficheros del paquete puestos al día dice «adb y el servidor de réplica de pantalla»

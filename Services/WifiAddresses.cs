@@ -18,7 +18,7 @@ public static class WifiAddresses
 {
     private const int Max = 8;
 
-    private static readonly string FilePath = Path.Combine(
+    internal static string FilePath { get; set; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "sOCPhoneMirror", "wifi.json");
 
     public static IReadOnlyList<string> Load() => Load(FilePath);

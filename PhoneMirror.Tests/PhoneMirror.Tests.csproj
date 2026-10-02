@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Pruebas de la logica de sOC Phone Mirror. La aplicacion es un solo proyecto WPF con la
-    interfaz mezclada, asi que aqui se enlazan solo los ficheros puros (parseo de adb, protocolo
-    de scrcpy, canal de control, geometria, argumentos, textos). Nada lanza adb ni toca moviles:
-    las salidas de adb son cadenas de prueba y el canal de control va por un socket de loopback.
+    Pruebas de sOC Phone Mirror: la logica (parseo de adb, protocolo de scrcpy, canal de control,
+    geometria, argumentos, textos) y tambien las ventanas, la sesion de espejo y el descodificador
+    H.264, con una plataforma falsa (Services\Desktop.cs), un adb de mentira (FakeAdb) y un
+    servidor de scrcpy de mentira en loopback. Nada lanza el adb de verdad ni toca moviles, la red,
+    el portapapeles ni el registro de quien trabaja.
   -->
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -14,6 +15,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>PhoneMirror.Tests</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,19 +31,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Services\AdbService.cs" Link="Linked\AdbService.cs" />
-    <Compile Include="..\Services\AdbInstaller.cs" Link="Linked\AdbInstaller.cs" />
-    <Compile Include="..\Services\BundledAdb.cs" Link="Linked\BundledAdb.cs" />
-    <Compile Include="..\Services\BundledAssets.cs" Link="Linked\BundledAssets.cs" />
-    <Compile Include="..\Services\AppLog.cs" Link="Linked\AppLog.cs" />
-    <Compile Include="..\Services\AndroidKeys.cs" Link="Linked\AndroidKeys.cs" />
-    <Compile Include="..\Services\ControlChannel.cs" Link="Linked\ControlChannel.cs" />
-    <Compile Include="..\Services\ScrcpyProtocol.cs" Link="Linked\ScrcpyProtocol.cs" />
-    <Compile Include="..\Services\VideoGeometry.cs" Link="Linked\VideoGeometry.cs" />
-    <Compile Include="..\Services\LaunchArguments.cs" Link="Linked\LaunchArguments.cs" />
-    <Compile Include="..\Services\WifiAddresses.cs" Link="Linked\WifiAddresses.cs" />
-    <Compile Include="..\Localization\Loc.cs" Link="Linked\Loc.cs" />
+    <!-- La aplicacion entera (ventanas incluidas): se prueba con una plataforma falsa (Services\Desktop.cs). -->
+    <ProjectReference Include="..\PhoneMirror.csproj" />
   </ItemGroup>
+
+  <!--
+    La referencia copia aqui el adb de verdad (Assets\platform-tools). Fuera: las pruebas nunca
+    lanzan el adb de verdad y BundledAdb no debe encontrarlo (tocaria el PATH del usuario).
+  -->
+  <Target Name="QuitarAdbDeVerdad" AfterTargets="Build">
+    <RemoveDir Directories="$(OutDir)Assets\platform-tools" />
+  </Target>
 
   <ItemGroup>
     <!-- El adb de mentira es otro proyecto (un exe): no se compila aqui, se copia al lado. -->

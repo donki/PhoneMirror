@@ -46,11 +46,11 @@ public partial class AboutWindow : Window
     {
         try
         {
-            Process.Start(new ProcessStartInfo(ContactAddress) { UseShellExecute = true });
+            Desktop.Current.Start(new ProcessStartInfo(ContactAddress) { UseShellExecute = true });
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, ex.Message, Loc.Get("Contact"));
+            Desktop.Current.ShowMessage(this, ex.Message, Loc.Get("Contact"));
         }
     }
 

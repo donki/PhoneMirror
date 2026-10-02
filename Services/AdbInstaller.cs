@@ -25,18 +25,24 @@ public static class AdbInstaller
 
     private static readonly string[] Needed = ["adb.exe", "AdbWinApi.dll", "AdbWinUsbApi.dll"];
 
-    public static string Folder => Path.Combine(
+    public static string Folder { get; internal set; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "sOCPhoneMirror", "platform-tools");
+
+    /// <summary>La descarga (las pruebas ponen un zip suyo: nada sale a la red).</summary>
+    internal static Func<string, CancellationToken, Task<byte[]>> Download { get; set; } = async (url, cancellationToken) =>
+    {
+        using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(3) };
+        return await http.GetByteArrayAsync(url, cancellationToken).ConfigureAwait(false);
+    };
 
     public static string ExecutablePath => Path.Combine(Folder, "adb.exe");
 
     /// <summary>Baja el zip y deja adb en <see cref="Folder"/>. Devuelve la ruta de adb.exe.</summary>
     public static async Task<string> InstallAsync(IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
-        using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(3) };
         progress?.Report(DownloadUrl);
 
-        var bytes = await http.GetByteArrayAsync(DownloadUrl, cancellationToken).ConfigureAwait(false);
+        var bytes = await Download(DownloadUrl, cancellationToken).ConfigureAwait(false);
 
         Extract(bytes, Folder);
         return ExecutablePath;

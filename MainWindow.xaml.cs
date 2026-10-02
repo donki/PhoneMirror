@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -16,7 +16,7 @@ namespace PhoneMirror;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private readonly AdbService _adb = new();
+    private readonly AdbService _adb = Desktop.Current.CreateAdb();
     private readonly DispatcherTimer _deviceTimer;
 
     private ScrcpySession? _session;
@@ -44,7 +44,7 @@ public partial class MainWindow : Window
     /// <summary>Arrancar escondida en la bandeja y enseñarse al enchufar un movil (opcion --tray).</summary>
     public bool StartInTray { get; init; }
 
-    private TrayIconHost? _tray;
+    private ITrayIcon? _tray;
     private bool _quitting;
     private bool _loadingToggles;
 
@@ -54,6 +54,7 @@ public partial class MainWindow : Window
 
         ApplyTexts();
         Loc.LanguageChanged += ApplyTexts;
+        Closed += (_, _) => Loc.LanguageChanged -= ApplyTexts;
 
         // Cada pocos segundos se mira si ha aparecido un movil, para no tener que pulsar nada al
         // enchufarlo. Solo mientras no hay sesion: con el espejo en marcha no hace falta.
@@ -61,6 +62,11 @@ public partial class MainWindow : Window
         _deviceTimer.Tick += async (_, _) => { if (_session is null) await RefreshDevicesAsync(); };
 
         SourceInitialized += (_, _) => ThemeManager.ApplyToWindow(this);
+        Closed += (_, _) =>
+        {
+            _closed = true;
+            _deviceTimer.Stop();
+        };
         Loaded += async (_, _) =>
         {
             MirrorArea.Focus();
@@ -69,7 +75,7 @@ public partial class MainWindow : Window
             if (BundledAssets.Updated.Count > 0)
                 SetStatus(Loc.Format("AssetsUpdated", BundledAssets.Updated.Count, BundledAssets.Root));
             // adb va dentro del paquete: que valga tambien desde una consola (PATH del usuario).
-            if (BundledAdb.EnsureOnUserPath())
+            if (Desktop.Current.EnsureAdbOnPath())
                 SetStatus(Loc.Format("AdbOnPath", BundledAdb.Folder));
             await RefreshDevicesAsync();
             _deviceTimer.Start();
@@ -194,20 +200,13 @@ public partial class MainWindow : Window
     /// <summary>Señalar un adb.exe que ya este en el PC (platform-tools descargadas a mano, Android Studio…).</summary>
     private async void OnLocateAdbClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Title = Loc.Get("LocateAdbTooltip"),
-            Filter = "adb.exe|adb.exe",
-            FileName = "adb.exe",
-            CheckFileExists = true,
-        };
-        if (dialog.ShowDialog(this) != true)
+        if (Desktop.Current.PickAdb(this, Loc.Get("LocateAdbTooltip")) is not { } chosen)
             return;
-        AdbService.RememberChosen(dialog.FileName);
+        AdbService.RememberChosen(chosen);
         _adb.Relocate();
         if (_adb.IsAvailable)
         {
-            SetStatus(Loc.Format("AdbInstalled", System.IO.Path.GetDirectoryName(dialog.FileName) ?? dialog.FileName));
+            SetStatus(Loc.Format("AdbInstalled", System.IO.Path.GetDirectoryName(chosen) ?? chosen));
             _deviceTimer.Start();
             await RefreshDevicesAsync();
         }
@@ -262,9 +261,9 @@ public partial class MainWindow : Window
         PlaceholderText.Text = Loc.Get("AdbDownloading");
         try
         {
-            await AdbInstaller.InstallAsync();
+            var folder = await Desktop.Current.InstallAdbAsync();
             _adb.Relocate();
-            SetStatus(Loc.Format("AdbInstalled", AdbInstaller.Folder));
+            SetStatus(Loc.Format("AdbInstalled", folder));
         }
         catch (Exception ex)
         {
@@ -299,14 +298,14 @@ public partial class MainWindow : Window
         if (_tray is not null)
             return;
 
-        _tray = new TrayIconHost(Loc.Get("TrayOpen"), Loc.Get("TrayQuit"));
+        _tray = Desktop.Current.CreateTray(Loc.Get("TrayOpen"), Loc.Get("TrayQuit"));
         _tray.SetText(Loc.Get("TrayWaiting"));
         _tray.Activated += (_, _) => ShowFromTray();
         _tray.QuitRequested += (_, _) =>
         {
             _quitting = true;
             Close();
-            Application.Current.Shutdown();
+            Desktop.Current.Shutdown();
         };
     }
 
@@ -392,6 +391,10 @@ public partial class MainWindow : Window
         {
             SetStatus(ex.Message);
         }
+
+        // Mientras se preguntaba a adb la ventana puede haberse cerrado de verdad: nada mas que hacer.
+        if (_closed)
+            return;
 
         ConnectButton.IsEnabled = DeviceBox.SelectedItem is AdbDevice { IsReady: true };
         UpdatePlaceholder();
@@ -496,15 +499,32 @@ public partial class MainWindow : Window
         await DisconnectAsync();
     }
 
+    private bool _connecting;
+    private bool _closed;
+
     private async Task ConnectAsync()
     {
-        if (_session is not null || DeviceBox.SelectedItem is not AdbDevice { IsReady: true } device)
+        // Una sola conexion a la vez: el temporizador de moviles y un clic (o el cambio de movil)
+        // podian llegar aqui a la vez mientras la primera aun arrancaba, y salian dos sesiones.
+        if (_session is not null || _connecting || DeviceBox.SelectedItem is not AdbDevice { IsReady: true } device)
             return;
+        _connecting = true;
+        try
+        {
+            await ConnectToAsync(device);
+        }
+        finally
+        {
+            _connecting = false;
+        }
+    }
 
+    private async Task ConnectToAsync(AdbDevice device)
+    {
         ConnectButton.IsEnabled = false;
         SetStatus(Loc.Format("Connecting", device.Caption));
 
-        var session = new ScrcpySession(_adb, device.Serial);
+        var session = Desktop.Current.CreateSession(_adb, device.Serial);
         session.FrameReady += OnFrameReady;
         session.VideoSizeChanged += (w, h) => Dispatcher.BeginInvoke(() =>
         {
@@ -546,7 +566,7 @@ public partial class MainWindow : Window
         {
             try
             {
-                Clipboard.SetText(text);
+                Desktop.Current.SetClipboardText(text);
                 SetStatus(Loc.Get("ClipboardCopied"));
             }
             catch (Exception)
@@ -659,40 +679,51 @@ public partial class MainWindow : Window
             _session.VideoWidth, _session.VideoHeight, point.X, point.Y);
     }
 
-    private async void OnMirrorMouseDown(object sender, MouseButtonEventArgs e)
+    private async void OnMirrorMouseDown(object sender, MouseButtonEventArgs e) =>
+        await MouseDownAsync(e.ChangedButton, e.GetPosition(MirrorArea));
+
+    /// <summary>Un boton del raton sobre el espejo, en coordenadas del area (las pruebas lo llaman directamente).</summary>
+    internal async Task MouseDownAsync(MouseButton button, Point point)
     {
         MirrorArea.Focus();
         if (_session?.Control is not { } control)
             return;
 
         // Como en scrcpy: el boton derecho es «atras» y el central «inicio».
-        if (e.ChangedButton == MouseButton.Right)
+        if (button == MouseButton.Right)
         {
             await control.BackOrScreenOnAsync();
             return;
         }
 
-        if (e.ChangedButton == MouseButton.Middle)
+        if (button == MouseButton.Middle)
         {
             await control.PressKeyAsync(AndroidKeys.Home);
             return;
         }
 
-        if (e.ChangedButton != MouseButton.Left || ToVideo(e.GetPosition(MirrorArea)) is not { } p)
+        if (button != MouseButton.Left || ToVideo(point) is not { } p)
             return;
 
-        _touching = true;
-        MirrorArea.CaptureMouse();
+        // Primero el «abajo» y despues capturar: capturar el raton dispara un movimiento, y el
+        // movil no debe recibir un movimiento de un dedo que aun no ha tocado la pantalla.
         await control.TouchAsync(ControlChannel.ActionDown, ControlChannel.MousePointerId, p.X, p.Y,
             _session.VideoWidth, _session.VideoHeight, 1f, ControlChannel.ButtonPrimary, ControlChannel.ButtonPrimary);
+        _touching = true;
+        MirrorArea.CaptureMouse();
     }
 
     private async void OnMirrorMouseMove(object sender, MouseEventArgs e)
     {
+        if (_touching)
+            await MouseMoveAsync(e.GetPosition(MirrorArea));
+    }
+
+    internal async Task MouseMoveAsync(Point point)
+    {
         if (!_touching || _session?.Control is not { } control)
             return;
 
-        var point = e.GetPosition(MirrorArea);
         if (ToVideo(point) is not { } p)
         {
             // Fuera de la imagen se sigue arrastrando en el borde, no se corta el gesto.
@@ -703,15 +734,17 @@ public partial class MainWindow : Window
             _session.VideoWidth, _session.VideoHeight, 1f, 0, ControlChannel.ButtonPrimary);
     }
 
-    private async void OnMirrorMouseUp(object sender, MouseButtonEventArgs e)
+    private async void OnMirrorMouseUp(object sender, MouseButtonEventArgs e) =>
+        await MouseUpAsync(e.ChangedButton, e.GetPosition(MirrorArea));
+
+    internal async Task MouseUpAsync(MouseButton button, Point point)
     {
-        if (e.ChangedButton != MouseButton.Left || !_touching || _session?.Control is not { } control)
+        if (button != MouseButton.Left || !_touching || _session?.Control is not { } control)
             return;
 
         _touching = false;
         MirrorArea.ReleaseMouseCapture();
 
-        var point = e.GetPosition(MirrorArea);
         var p = ToVideo(point) ?? Clamp(point);
         await control.TouchAsync(ControlChannel.ActionUp, ControlChannel.MousePointerId, p.X, p.Y,
             _session.VideoWidth, _session.VideoHeight, 0f, ControlChannel.ButtonPrimary, 0);
@@ -722,14 +755,17 @@ public partial class MainWindow : Window
         // Con el raton capturado los eventos siguen llegando aunque salga del area.
     }
 
-    private async void OnMirrorMouseWheel(object sender, MouseWheelEventArgs e)
+    private async void OnMirrorMouseWheel(object sender, MouseWheelEventArgs e) =>
+        await WheelAsync(e.Delta, e.GetPosition(MirrorArea), Keyboard.Modifiers);
+
+    internal async Task WheelAsync(int delta, Point point, ModifierKeys modifiers)
     {
-        if (_session?.Control is not { } control || ToVideo(e.GetPosition(MirrorArea)) is not { } p)
+        if (_session?.Control is not { } control || ToVideo(point) is not { } p)
             return;
 
         // Una muesca de rueda = un paso de desplazamiento. Con Shift, horizontal.
-        var notches = Math.Clamp(e.Delta / 120f, -1f, 1f);
-        var horizontal = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
+        var notches = Math.Clamp(delta / 120f, -1f, 1f);
+        var horizontal = modifiers.HasFlag(ModifierKeys.Shift);
         await control.ScrollAsync(p.X, p.Y, _session.VideoWidth, _session.VideoHeight,
             horizontal ? notches : 0f, horizontal ? 0f : notches, 0);
     }
@@ -746,60 +782,82 @@ public partial class MainWindow : Window
 
     private async void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (_session?.Control is not { } control || !MirrorArea.IsKeyboardFocused)
+        if (_session?.Control is null || !MirrorArea.IsKeyboardFocused)
             return;
 
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        if (WillHandleKey(key, Keyboard.Modifiers))
+        {
+            e.Handled = true;
+            await KeyDownAsync(key, e.IsRepeat, Keyboard.Modifiers);
+        }
+    }
+
+    /// <summary>¿Va la tecla al movil? Ctrl+V y Ctrl+C (portapapeles) y las que tienen tecla de Android.</summary>
+    internal static bool WillHandleKey(Key key, ModifierKeys modifiers) =>
+        modifiers == ModifierKeys.Control && key is Key.V or Key.C || AndroidKeys.FromKey(key) is not null;
+
+    /// <summary>Una tecla pulsada con el espejo enfocado (las pruebas lo llaman directamente).</summary>
+    internal async Task KeyDownAsync(Key key, bool repeat, ModifierKeys modifiers)
+    {
+        if (_session?.Control is not { } control)
+            return;
 
         // Ctrl+V pega el portapapeles del PC; Ctrl+C trae el del movil.
-        if (Keyboard.Modifiers == ModifierKeys.Control)
+        if (modifiers == ModifierKeys.Control)
         {
             if (key == Key.V)
             {
-                e.Handled = true;
                 await PasteAsync();
                 return;
             }
 
             if (key == Key.C)
             {
-                e.Handled = true;
                 await control.RequestClipboardAsync(copyKey: 1);
                 return;
             }
         }
 
         if (AndroidKeys.FromKey(key) is { } keycode)
-        {
-            e.Handled = true;
-            await control.KeyAsync(0, keycode, e.IsRepeat ? 1 : 0, AndroidKeys.MetaState(Keyboard.Modifiers));
-        }
+            await control.KeyAsync(0, keycode, repeat ? 1 : 0, AndroidKeys.MetaState(modifiers));
     }
 
     private async void OnPreviewKeyUp(object sender, KeyEventArgs e)
     {
-        if (_session?.Control is not { } control || !MirrorArea.IsKeyboardFocused)
+        if (_session?.Control is null || !MirrorArea.IsKeyboardFocused)
             return;
 
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
-        if (AndroidKeys.FromKey(key) is { } keycode)
+        if (AndroidKeys.FromKey(key) is not null)
         {
             e.Handled = true;
-            await control.KeyAsync(1, keycode, 0, AndroidKeys.MetaState(Keyboard.Modifiers));
+            await KeyUpAsync(key, Keyboard.Modifiers);
         }
+    }
+
+    internal async Task KeyUpAsync(Key key, ModifierKeys modifiers)
+    {
+        if (_session?.Control is { } control && AndroidKeys.FromKey(key) is { } keycode)
+            await control.KeyAsync(1, keycode, 0, AndroidKeys.MetaState(modifiers));
     }
 
     private async void OnTextInput(object sender, TextCompositionEventArgs e)
     {
-        if (_session?.Control is not { } control || !MirrorArea.IsKeyboardFocused)
-            return;
-
-        // Lo que no es texto de verdad (controles, tabulador) ya se ha mandado como tecla.
-        if (string.IsNullOrEmpty(e.Text) || e.Text.Any(char.IsControl))
+        if (_session?.Control is null || !MirrorArea.IsKeyboardFocused || !IsRealText(e.Text))
             return;
 
         e.Handled = true;
-        await control.TextAsync(e.Text);
+        await TextAsync(e.Text);
+    }
+
+    /// <summary>Lo que no es texto de verdad (controles, tabulador) ya se ha mandado como tecla.</summary>
+    internal static bool IsRealText(string? text) => !string.IsNullOrEmpty(text) && !text.Any(char.IsControl);
+
+    internal async Task TextAsync(string text)
+    {
+        if (_session?.Control is { } control && IsRealText(text))
+            await control.TextAsync(text);
     }
 
     // =====================================================================
@@ -871,7 +929,7 @@ public partial class MainWindow : Window
         if (_bitmap is null)
             return;
 
-        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Phone Mirror");
+        var folder = Desktop.Current.ScreenshotFolder;
         Directory.CreateDirectory(folder);
         var path = Path.Combine(folder, $"{DateTime.Now:yyyyMMdd-HHmmss}.png");
 
@@ -899,7 +957,7 @@ public partial class MainWindow : Window
         string text;
         try
         {
-            text = Clipboard.ContainsText() ? Clipboard.GetText() : string.Empty;
+            text = Desktop.Current.ClipboardHasText() ? Desktop.Current.ClipboardText() : string.Empty;
         }
         catch (Exception)
         {
@@ -922,15 +980,23 @@ public partial class MainWindow : Window
 
     private void OnDragOver(object sender, DragEventArgs e)
     {
-        e.Effects = _session is not null && e.Data.GetDataPresent(DataFormats.FileDrop)
-            ? DragDropEffects.Copy
-            : DragDropEffects.None;
+        e.Effects = DropEffect(e.Data);
         e.Handled = true;
     }
 
+    internal DragDropEffects DropEffect(IDataObject data) =>
+        _session is not null && data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+
     private async void OnDrop(object sender, DragEventArgs e)
     {
-        if (_session is null || e.Data.GetData(DataFormats.FileDrop) is not string[] files)
+        if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
+            await DropFilesAsync(files);
+    }
+
+    /// <summary>Ficheros soltados en la ventana: los APK se instalan, lo demas va a Download.</summary>
+    internal async Task DropFilesAsync(string[] files)
+    {
+        if (_session is null)
             return;
 
         var serial = (DeviceBox.SelectedItem as AdbDevice)?.Serial;

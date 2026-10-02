@@ -13,9 +13,9 @@
     <RootNamespace>PhoneMirror</RootNamespace>
     <AssemblyName>sOCPhoneMirror</AssemblyName>
     <ApplicationTitle>sOC Phone Mirror</ApplicationTitle>
-    <Version>2026.9.29.0</Version>
-    <AssemblyVersion>2026.9.29.0</AssemblyVersion>
-    <FileVersion>2026.9.29.0</FileVersion>
+    <Version>2026.10.3.0</Version>
+    <AssemblyVersion>2026.10.3.0</AssemblyVersion>
+    <FileVersion>2026.10.3.0</FileVersion>
     <Product>sOC Phone Mirror</Product>
     <Company>Socratic</Company>
     <Copyright>Copyright © 2026 Socratic</Copyright>
@@ -31,6 +31,10 @@
     <None Remove="PhoneMirror.Tests\**" />
     <Page Remove="PhoneMirror.Tests\**" />
     <EmbeddedResource Remove="PhoneMirror.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PhoneMirror.Tests" />
   </ItemGroup>
 
   <ItemGroup>

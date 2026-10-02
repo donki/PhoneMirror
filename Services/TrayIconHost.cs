@@ -10,7 +10,7 @@ namespace PhoneMirror.Services;
 /// NotifyIcon vive en WinForms; es la unica forma sin dependencias externas de tener icono de
 /// bandeja desde WPF (lo mismo que hace Task Manager). El icono es el de la propia aplicacion.
 /// </remarks>
-public sealed class TrayIconHost : IDisposable
+public sealed class TrayIconHost : ITrayIcon
 {
     private readonly WinForms.NotifyIcon _icon;
 

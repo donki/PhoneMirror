@@ -72,7 +72,7 @@ public sealed class AdbService
     }
 
     /// <summary>Ruta elegida a mano con «Buscar adb.exe…», recordada entre sesiones.</summary>
-    private static readonly string ChosenPathFile = Path.Combine(
+    internal static string ChosenPathFile { get; set; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "sOCPhoneMirror", "adb-path.txt");
 
     public static void RememberChosen(string path)

@@ -60,20 +60,36 @@ móvil (una ventana por móvil: se puede abrir una para el teléfono y otra para
 
 ## Pruebas
 
-`PhoneMirror.Tests` (xUnit) prueba la lógica sin móviles ni adb real: lectura de `adb devices -l`,
-`connect`/`pair`/argumentos contra un adb de mentira (`FakeAdb`), el protocolo de scrcpy (orden del
-servidor, cabeceras de video), el canal de control byte a byte por un socket de loopback, teclas,
-geometría del espejo, argumentos de arranque, direcciones Wi-Fi, assets empaquetados y textos es/en.
+`PhoneMirror.Tests` (xUnit) prueba la aplicación entera sin móviles ni adb real: lectura de
+`adb devices -l`, `connect`/`pair` y la sesión contra un adb de mentira (`FakeAdb`, con reglas por
+orden), el protocolo de scrcpy y el canal de control byte a byte contra un **servidor de réplica de
+mentira** en loopback, el **descodificador H.264 de Windows** con un vídeo hecho a mano en las
+pruebas (macrobloques I_PCM: el color de cada cuadro se sabe de antemano) y la conversión a BGRA,
+y **las ventanas de verdad** (principal, Wi-Fi, «Acerca de», elegir instancia, arranque, bandeja)
+en un hilo STA con una plataforma falsa (`Services/Desktop.cs`): conectar solo, vídeo, toques,
+rueda, teclas, botones, portapapeles, capturas, arrastrar APK y ficheros, sin adb, abrir al
+conectar. Nada toca el adb de verdad, la red, el portapapeles ni el registro de quien trabaja.
 
-- **178 pruebas**, todas pasan (2026-09-29). Tardan unos **3 s** (`dotnet test --no-build`, sin compilar).
-- Cobertura de lo instrumentado: **92,9 %** de líneas (728 de 783).
-- Cobertura sobre toda la aplicación: **32,8 %** (728 de 2219 líneas ejecutables; la interfaz WPF y
-  la descodificación con Media Foundation no se prueban).
+- **223 pruebas**, todas pasan (2026-10-03). Tardan unos **48 s** (`dotnet test --no-build`; casi
+  todo es esperar a la ventana y a los procesos del adb de mentira).
+- Cobertura de lo instrumentado: **93,3 %** (1582 de 1695 líneas). Se instrumenta la aplicación
+  entera, así que coincide con la de toda la app.
+- Cobertura sobre toda la aplicación: **93,3 %** (antes 34,6 % con la misma medida).
+
+**Cómo se cuenta «toda la app»** (`tools/cobertura-app.py`, General §8.6): todos los `.cs` de la
+aplicación salvo `obj/`, `bin/`, generados y el proyecto de pruebas; solo las líneas con sentencias
+(fuera llaves sueltas, `using`, declaraciones sin cuerpo como las de `DllImport`, campos sin
+inicializar, atributos, interfaces y comentarios). Lo que el banco compila cuenta lo que marca
+coverlet, sin excluir `CompilerGeneratedAttribute` (los `async` y las lambdas cuentan). Lo que queda
+sin cubrir: los diálogos y `MessageBox` de Windows, el portapapeles y `Process.Start` de la
+plataforma de verdad, el `MSIX` (dentro del paquete), algunos `HRESULT` de error de Media Foundation
+y ramas de carrera de la sesión.
 
 ```
 dotnet test PhoneMirror.Tests/PhoneMirror.Tests.csproj
 dotnet test PhoneMirror.Tests/PhoneMirror.Tests.csproj --settings PhoneMirror.Tests/coverage.runsettings --collect:"XPlat Code Coverage"
 dotnet tool restore && dotnet reportgenerator -reports:"PhoneMirror.Tests/TestResults/*/coverage.cobertura.xml" -targetdir:cobertura -reporttypes:TextSummary
+python tools/cobertura-app.py PhoneMirror.Tests/TestResults --app . --detalle
 ```
 
 ## A qué accede

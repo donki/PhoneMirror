@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- La logica probada esta enlazada dentro del ensamblado de pruebas: hay que instrumentarlo, sin
-     contar las propias pruebas ni el adb de mentira. -->
+<!-- Se instrumenta la aplicacion entera (sOCPhoneMirror); ni las pruebas ni el adb de mentira. -->
 <RunSettings>
   <DataCollectionRunSettings>
     <DataCollectors>
       <DataCollector friendlyName="XPlat code coverage">
         <Configuration>
           <Format>cobertura</Format>
-          <IncludeTestAssembly>true</IncludeTestAssembly>
-          <Include>[PhoneMirror.Tests]PhoneMirror.Services.*,[PhoneMirror.Tests]PhoneMirror.Localization.*</Include>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+          <Include>[sOCPhoneMirror]*</Include>
           <Exclude>[FakeAdb]*</Exclude>
         </Configuration>
       </DataCollector>
