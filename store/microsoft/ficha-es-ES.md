@@ -50,8 +50,8 @@ Software libre bajo licencia MIT. En español y en inglés, con modo claro y osc
 ## Novedades de esta versión
 
 ```
-Ya no se abren dos sesiones con el mismo móvil si coinciden la búsqueda automática y un clic. Al
-tocar con el ratón, el móvil recibe primero el toque. Más pruebas automáticas (223).
+El menú del icono junto al reloj tiene el mismo aspecto que en el resto de aplicaciones sOC, con
+iconos, en tema claro y oscuro.
 ```
 
 Nota del envío del 2026-09-15 (rechazado por 10.1.2.10 «adb no encontrado» y 10.2.4.1 «dependencia no

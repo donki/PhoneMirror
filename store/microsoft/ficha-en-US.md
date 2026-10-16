@@ -46,8 +46,8 @@ Free software under the MIT licence. Spanish and English, light and dark mode.
 ## What's new in this version
 
 ```
-No more two sessions with the same phone when automatic polling and a click coincide. When you
-touch with the mouse, the phone gets the touch first. More automated tests (223).
+The menu of the icon next to the clock looks the same as in the other sOC apps, with icons, in
+light and dark theme.
 ```
 
 ## Product features

@@ -1,8 +1,16 @@
 ﻿# Changelog — sOC Phone Mirror
 
-## Sin publicar
+## 2026.10.16.0 — Menú de la bandeja como en el resto de apps sOC / Tray menu like the other sOC apps
 
-- Menús contextuales y de bandeja con el aspecto común de las apps sOC (General 6.14).
+**Español**
+
+- El menú del icono junto al reloj tiene el mismo aspecto que en el resto de aplicaciones sOC, con
+  iconos, en tema claro y oscuro.
+
+**English**
+
+- The menu of the icon next to the clock looks the same as in the other sOC apps, with icons, in
+  light and dark theme.
 
 ## 2026.10.3.0 — Pruebas de las ventanas y dos arreglos / Window tests and two fixes
 
