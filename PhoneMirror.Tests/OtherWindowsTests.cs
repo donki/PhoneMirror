@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using System.Windows;
 using System.Windows.Controls;
@@ -277,13 +277,20 @@ public sealed class OtherWindowsTests : UiTest
             tray.SetText(new string('x', 100));
             var icon = (System.Windows.Forms.NotifyIcon)typeof(TrayIconHost).GetField("_icon", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(tray)!;
             Assert.Equal(63, icon.Text.Length);
-            icon.ContextMenuStrip!.Items[0].PerformClick();
-            icon.ContextMenuStrip.Items[2].PerformClick();
+            Assert.Null(icon.ContextMenuStrip);   // el menu gris de WinForms ya no: el de WPF comun (General 6.14)
+            var menu = tray.BuildMenu();
+            Assert.Same(Application.Current.FindResource("TrayMenu"), menu.Style);
+            var open = Assert.IsType<MenuItem>(menu.Items[0]);
+            Assert.IsType<Separator>(menu.Items[1]);
+            var exit = Assert.IsType<MenuItem>(menu.Items[2]);
+            Assert.Equal(("Abrir", "Salir"), ((string)open.Header, (string)exit.Header));
+            Assert.All(new[] { open, exit }, i => Assert.False(string.IsNullOrEmpty(((TextBlock)i.Icon).Text)));
+            open.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            exit.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
             Assert.Equal((1, 1), (opened, quit));
             typeof(System.Windows.Forms.NotifyIcon).GetMethod("OnMouseClick", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .Invoke(icon, [new System.Windows.Forms.MouseEventArgs(System.Windows.Forms.MouseButtons.Left, 1, 0, 0, 0)]);
-            typeof(System.Windows.Forms.NotifyIcon).GetMethod("OnMouseClick", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                .Invoke(icon, [new System.Windows.Forms.MouseEventArgs(System.Windows.Forms.MouseButtons.Right, 1, 0, 0, 0)]);
+            // El clic derecho no se prueba: abre el menu en pantalla y lo pasa a primer plano (robaria el foco).
             Assert.Equal(2, opened);
         });
     }

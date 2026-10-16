@@ -1,5 +1,9 @@
 ﻿# Changelog — sOC Phone Mirror
 
+## Sin publicar
+
+- Menús contextuales y de bandeja con el aspecto común de las apps sOC (General 6.14).
+
 ## 2026.10.3.0 — Pruebas de las ventanas y dos arreglos / Window tests and two fixes
 
 **Español**
